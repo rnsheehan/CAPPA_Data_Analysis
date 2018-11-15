@@ -28,11 +28,14 @@ def Meas_Setup_Plots():
     ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
 
     try:
-        DATA_HOME = "C:/Users/Robert/Research/CAPPA/Data/FR_Meas_Eq_Circ/"
+        #DATA_HOME = "C:/Users/Robert/Research/CAPPA/Data/FR_Meas_Eq_Circ/"
+        DATA_HOME = "C:/Users/Robert/Research/CAPPA/Data/Scope_SetUp_Calibration/"
 
         if os.path.isdir(DATA_HOME):
             os.chdir(DATA_HOME)
             print(os.getcwd())   
+
+            Plot_F_Swp_Data()
             
             #Plot_BW_Max_Min()
 
@@ -46,10 +49,10 @@ def Meas_Setup_Plots():
             ##Plot_Pwr_Split(Conn_type, Avals)
             #Plot_Pwr_Split_Comb(Conn_type, Avals)
 
-            Conn_type = 'BNC'
-            filename = 'FR_Meas_Simple_R_10_C_1nF_A_01.csv'
-            Plot_Vin_Vout(filename, Conn_type)
-            Plot_Response(filename, Conn_type)
+            #Conn_type = 'BNC'
+            #filename = 'FR_Meas_Simple_R_10_C_1nF_A_01.csv'
+            #Plot_Vin_Vout(filename, Conn_type)
+            #Plot_Response(filename, Conn_type)
 
         else:
             raise EnvironmentError
@@ -314,6 +317,57 @@ def Plot_Response(filename, Conn_type):
             del data; del v_data; 
         else:
             print(filename,"not found")
+            raise Exception
+    except Exception:
+        print(ERR_STATEMENT)
+
+def Plot_F_Swp_Data():
+    # plot the measured frequency sweep data
+    # R. Sheehan 15 - 11 - 2018
+
+    FUNC_NAME = ".Plot_F_Swp_Data()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        filelist = []
+        vals = ['01', '05', '07', '10']
+        vpp = [0.1, 0.5, 0.7, 1.0]
+        for v in vals:
+            filename = "Rf_Swp_Vpp_%(v1)s.txt"%{"v1":v}
+            if glob.glob(filename):
+                filelist.append(filename)
+
+        if len(filelist) > 0:
+            # plot the imported data
+            hv_data = []; labels = []; marks = []
+
+            count = 0
+            for f in filelist:
+                data = Common.read_matrix(f, '\t')
+                data = Common.transpose_multi_col(data)
+                hv_data.append([data[0],data[5]]); labels.append("$V_{pp} = %(v1)0.1f$"%{"v1":vpp[count]}); marks.append(Plotting.labs[count]);
+                #hv_data.append([data[0],data[2], data[3]]); labels.append("$V_{pp} = %(v1)0.1f$"%{"v1":vpp[count]}); marks.append(Plotting.labs[count]);
+                #hv_data.append([data[0],data[4], data[5]]); labels.append("$V_{pp} = %(v1)0.1f$"%{"v1":vpp[count]}); marks.append(Plotting.labs[count]);
+                count = (count+1)%len(Plotting.labs)
+
+            args = Plotting.plot_arg_multiple()
+
+            args.crv_lab_list = labels
+            args.mrk_list = marks
+            args.x_label = 'Frequency (Hz)'
+            args.y_label = 'Amplitude Variation (V)'
+            args.fig_name = 'DeltaVamp'
+            #args.plt_range = [0, 50, 0, 300]
+            args.log_x = False
+            args.log_y = False
+            args.loud = True
+
+            Plotting.plot_multiple_curves(hv_data, args)
+
+            #Plotting.plot_multiple_curves_with_errors(hv_data, args)
+
+            del hv_data; del labels; del marks; 
+        else:
             raise Exception
     except Exception:
         print(ERR_STATEMENT)

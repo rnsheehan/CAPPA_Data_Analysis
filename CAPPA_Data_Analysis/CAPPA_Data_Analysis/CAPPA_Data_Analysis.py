@@ -17,6 +17,7 @@ sys.path.append('c:/Users/Robert/Programming/Python/Plotting/')
 import Yenista_TLS
 import DBR_Analysis
 import FR_Meas_Setup
+import Redfinch_AWG
 
 def main():
     pass
@@ -33,3 +34,5 @@ if __name__ == '__main__':
     #DBR_Analysis.DBR_Sim_Plots()
 
     FR_Meas_Setup.Meas_Setup_Plots()
+
+    #Redfinch_AWG.Make_AWG_Plots()
