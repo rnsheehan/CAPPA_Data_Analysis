@@ -15,7 +15,7 @@ import Plotting
 # Want to analyse the data obtained from the basic experiments described in Notebook 426, pg 48-51, 53
 # R. Sheehan 23 - 8 - 2018
 
-MOD_NAME_STR = "FR_Meas-Setup" # use this in exception handling messages
+MOD_NAME_STR = "FR_Meas_Setup" # use this in exception handling messages
 
 Conn_types = ["BNC", "N"]
 
@@ -35,7 +35,17 @@ def Meas_Setup_Plots():
             os.chdir(DATA_HOME)
             print(os.getcwd())   
 
-            Plot_F_Swp_Data()
+            Make_Rsp_Plot()
+
+            #Plot_F_Swp_Data()
+
+            #Plot_2_chan_F_Swp_Data()
+
+            #Plot_Averaged_Output()
+
+            #Plot_2_chan_Averaged_Output()
+
+            #Plot_2_chan_Averaged_Output()
             
             #Plot_BW_Max_Min()
 
@@ -369,5 +379,316 @@ def Plot_F_Swp_Data():
             del hv_data; del labels; del marks; 
         else:
             raise Exception
+    except Exception:
+        print(ERR_STATEMENT)
+
+def Plot_2_chan_F_Swp_Data():
+    # plot the measured frequency sweep data from the two channel sweep measurements
+    # R. Sheehan 21 - 11 - 2018
+
+    FUNC_NAME = ".Plot_2_chan_F_Swp_Data()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        filelist = []
+        vals = ['01', '05', '07', '10']
+        vpp = [0.1, 0.5, 0.7, 1.0]
+        for v in vals:
+            filename = "2_chan_Rf_Swp_Vpp_%(v1)s.txt"%{"v1":v}
+            if glob.glob(filename):
+                filelist.append(filename)
+
+        if len(filelist) > 0:
+            # plot the imported data
+            hv_data = []; labels = []; marks = []
+
+            count = 0
+            for f in filelist:
+                data = Common.read_matrix(f, '\t')
+                data = Common.transpose_multi_col(data)
+                #hv_data.append([data[0], data[5]]); labels.append("$V_{pp} = %(v1)0.1f$"%{"v1":vpp[count]}); marks.append(Plotting.labs_lins[count]);
+                #hv_data.append([data[0], data[11]]); labels.append("$V_{pp} = %(v1)0.1f$"%{"v1":vpp[count]}); marks.append(Plotting.labs_dashed[count]);
+                hv_data.append([data[0], data[3]]); labels.append("$V_{pp} = %(v1)0.1f$"%{"v1":vpp[count]}); marks.append(Plotting.labs_lins[count]);
+                hv_data.append([data[0], data[9]]); labels.append("$V_{pp} = %(v1)0.1f$"%{"v1":vpp[count]}); marks.append(Plotting.labs_dashed[count]);
+                #hv_data.append([data[0], data[2], data[3]]); labels.append("$V_{pp} = %(v1)0.1f$"%{"v1":vpp[count]}); marks.append(Plotting.labs_lins[count]);
+                #hv_data.append([data[0], data[8], data[9]]); labels.append("$V_{pp} = %(v1)0.1f$"%{"v1":vpp[count]}); marks.append(Plotting.labs_dashed[count]);
+                #hv_data.append([data[0],data[4], data[5]]); labels.append("$V_{pp} = %(v1)0.1f$"%{"v1":vpp[count]}); marks.append(Plotting.labs_lins[count]);
+                #hv_data.append([data[0],data[10], data[11]]); labels.append("$V_{pp} = %(v1)0.1f$"%{"v1":vpp[count]}); marks.append(Plotting.labs_dashed[count]);
+                count = (count+1)%len(Plotting.labs)
+
+            args = Plotting.plot_arg_multiple()
+
+            args.crv_lab_list = labels
+            args.mrk_list = marks
+            args.x_label = 'Frequency (Hz)'
+            args.y_label = 'Pk-to-Pk Variation (V)'
+            args.fig_name = '2_chan_deltaPk2Pk'
+            #args.plt_range = [0, 50, 0, 300]
+            args.log_x = False
+            args.log_y = False
+            args.loud = True
+
+            Plotting.plot_multiple_curves(hv_data, args)
+
+            #Plotting.plot_multiple_curves_with_errors(hv_data, args)
+
+            del hv_data; del labels; del marks; 
+        else:
+            raise Exception
+    except Exception:
+        print(ERR_STATEMENT)
+
+def Plot_Averaged_Output():
+    # plot the averaged output for each Vpp value
+    # R. Sheehan 21 - 11 - 2018
+
+    FUNC_NAME = ".Plot_Averaged_Output()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        filelist = []
+        vals = ['01', '05', '07', '10']
+        vpp = [0.1, 0.5, 0.7, 1.0]
+        for v in vals:
+            filename = "Rf_Swp_Vpp_%(v1)s.txt"%{"v1":v}
+            if glob.glob(filename):
+                filelist.append(filename)
+
+        if len(filelist) > 0:
+            # plot the imported data
+            hv_data = []; labels = []; marks = []
+
+            averages = []
+            stdevs = []
+            for f in filelist:
+                data = Common.read_matrix(f, '\t')
+                data = Common.transpose_multi_col(data)
+                mean = np.mean(np.asarray(data[4]))
+                stdev = np.std(np.asarray(data[4]))
+                averages.append(mean)
+                stdevs.append(stdev)
+
+            print(vpp)
+            print(averages)
+            print(stdevs)
+
+            #filename = 'One_chan_average_Ampl.txt'
+            #Common.write_data(filename, averages)
+
+            #filename = 'One_chan_stdev_Ampl.txt'
+            #Common.write_data(filename, stdevs)
+
+            #Common.linear_fit(np.asarray(vpp), np.asarray(averages), [0.0, 1.0], loud = True)
+
+            args = Plotting.plot_arg_single()
+
+            args.x_label = 'SRS SG386 BNC $V_{pp}$ (V)'
+            args.y_label = 'Measured Amplitude  (V)'
+            args.fig_name = 'One_chan_Va_meas'
+            args.plt_range = [0.0, 1.1, 0.0, 1.1]
+            args.loud = True
+
+            #Plotting.plot_single_curve_with_errors(vpp, averages, stdevs, args)
+            Plotting.plot_single_linear_fit_curve(vpp, averages, args)                
+        else:
+            raise Exception
+    except Exception:
+        print(ERR_STATEMENT)
+
+def Plot_2_chan_Averaged_Output():
+    # plot the averaged output for each Vpp value
+    # R. Sheehan 21 - 11 - 2018
+
+    FUNC_NAME = ".Plot_2_chan_Averaged_Output()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        filelist = []
+        vals = ['01', '05', '07', '10']
+        vpp = [0.1, 0.5, 0.7, 1.0]
+        for v in vals:
+            filename = "2_chan_Rf_Swp_Vpp_%(v1)s.txt"%{"v1":v}
+            if glob.glob(filename):
+                filelist.append(filename)
+
+        if len(filelist) > 0:
+            # plot the imported data
+            hv_data = []; labels = []; marks = []
+
+            averages_ch1 = []
+            averages_ch2 = []
+            stdevs_ch1 = []
+            stdevs_ch2 = []
+            for f in filelist:
+                data = Common.read_matrix(f, '\t')
+                data = Common.transpose_multi_col(data)
+                
+                mean = np.mean(np.asarray(data[4]))
+                stdev = np.std(np.asarray(data[4]))
+                averages_ch1.append(mean)
+                stdevs_ch1.append(stdev)
+
+                mean = np.mean(np.asarray(data[10]))
+                stdev = np.std(np.asarray(data[10]))
+                averages_ch2.append(mean)
+                stdevs_ch2.append(stdev)
+
+            #print(vpp)
+            #print(averages_ch1)
+            #print(stdevs_ch1)
+            #print(averages_ch2)
+            #print(stdevs_ch2)
+
+            Common.linear_fit(np.asarray(vpp), np.asarray(averages_ch1), [0.0, 1.0], True)
+
+            Common.linear_fit(np.asarray(vpp), np.asarray(averages_ch2), [0.0, 1.0], True)
+
+            #filename = 'Two_chan_average_Ampl_1.txt'
+            #Common.write_data(filename, averages_ch1)
+
+            #filename = 'Two_chan_stdev_Ampl_1.txt'
+            #Common.write_data(filename, stdevs_ch1)
+
+            #filename = 'Two_chan_average_Ampl_2.txt'
+            #Common.write_data(filename, averages_ch2)
+
+            #filename = 'Two_chan_stdev_Ampl_2.txt'
+            #Common.write_data(filename, stdevs_ch2)
+
+            #Common.linear_fit(np.asarray(vpp), np.asarray(averages), [0.0, 1.0], loud = True)
+
+            filename = "One_chan_average_Ampl.txt"
+            averages = Common.read_data(filename)
+
+            args = Plotting.plot_arg_multiple()
+
+            hv_data = []; labels = []; marks = []
+
+            hv_data.append([vpp, averages]); labels.append("SRS SG386"); marks.append(Plotting.labs_lins[0])
+            hv_data.append([vpp, averages_ch1]); labels.append("Ch. 1"); marks.append(Plotting.labs_lins[1])
+            hv_data.append([vpp, averages_ch2]); labels.append("Ch. 2"); marks.append(Plotting.labs_lins[1])
+
+            args.mrk_list = marks
+            args.crv_lab_list = labels
+            args.x_label = 'SRS SG386 BNC $V_{pp}$ (V)'
+            args.y_label = 'Measured Amplitude  (V)'
+            args.fig_name = 'Two_chan_Va_meas'
+            args.plt_range = [0.0, 1.1, 0.0, 1.1]
+            args.loud = True
+
+            Plotting.plot_multiple_linear_fit_curves(hv_data, args)
+
+            del hv_data; del labels; del marks;                 
+        else:
+            raise Exception
+    except Exception:
+        print(ERR_STATEMENT)
+
+def Plot_Swp_Data():
+    #
+
+    pass
+
+def Make_Rsp_Plot():
+    # driver for the Plot_Rsp_Data method
+    # R. Sheehan 21 - 11 - 2018
+
+    FUNC_NAME = ".Make_Rsp_Plot()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        filelist = []
+        lablist = []
+        #name_template = 'Brd_Rsp_Data'
+        #name_template = 'R_46_Rsp_Data'
+        name_template = 'R_46_C_470_pF_Rsp_Data'
+        #name_template = 'R_46_C_47_nF_Rsp_Data'
+        vals = ['01', '05', '07', '10']
+        vpp = [0.1, 0.5, 0.7, 1.0]
+        for v in range(0, len(vals), 1):
+            filename = "%(v2)s_%(v1)s.txt"%{"v2":name_template, "v1":vals[v]}
+            if glob.glob(filename):
+                filelist.append(filename)
+                lablist.append("$V_{pp}$ = %(v1)0.1f V"%{"v1":vpp[v]})
+
+        figname = name_template + '_plot'
+        plt_pk2pk = False
+        include_errors = False
+        scale_dB = True
+        Plot_Rsp_Data(filelist, lablist, figname, plt_pk2pk, include_errors, scale_dB)
+
+    except Exception:
+        print(ERR_STATEMENT)
+
+def Plot_Rsp_Data(filelist, lablist, figname, plt_pk2pk, include_errors, scale_dB):
+    # filelist is the list of files with data to be plotted
+    # Plot the measured response data
+    # plt_pk2pk decides whether to plot the pk2pk response or amplitude reponse
+    # include_errors decides whether or not to include the measured error in the plot
+    # R. Sheehan 21 - 11 - 2018
+
+    FUNC_NAME = ".Plot_Rsp_Data()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        c1 = True if len(filelist) == 0 else False
+        c2 = True if filelist == None else False
+        c3 = True if len(lablist) == 0 else False
+        c4 = True if lablist == None else False
+        c5 = True if math.fabs(len(lablist) - len(filelist)) > 0 else False
+        c6 = True if c1 or c2 or c3 or c4 or c5 else False
+
+        if c6:
+            raise Exception
+        else:
+            # Can't do an error bar plot on dB scale
+            incl_errors = False if scale_dB == True else include_errors
+
+            hv_data = []; marks = []; labels = []
+
+            frqcol = 0
+            datacol = 2 if plt_pk2pk else 4
+            errcol = 3 if plt_pk2pk else 5
+
+            delim = '\t'
+            count = 0; 
+            for f in range(0, len(lablist), 1):
+                data = Common.read_matrix(filelist[f], delim)
+                data = Common.transpose_multi_col(data)
+                if incl_errors:
+                    hv_data.append([data[frqcol], data[datacol], data[errcol]]); 
+                    marks.append(Plotting.labs[count]); labels.append(lablist[f]);
+                else:
+                    if scale_dB:
+                        for j in range(0, len(data[datacol]), 1):
+                            data[datacol][j] = Common.convert_dB(data[datacol][j], 1.0); 
+                    hv_data.append([data[frqcol], data[datacol]]); 
+                    marks.append(Plotting.labs[count]); labels.append(lablist[f]);
+                count = (count + 1)%len(Plotting.labs)
+
+            # record start and end frequencies
+            fr_start = hv_data[0][0][0]
+            #fr_end = hv_data[0][0][-1]
+            fr_end = 20e+6
+            r_start = 0.0 if scale_dB == False else -20
+            r_end = 1.0 if scale_dB == False else 1.0
+
+            args = Plotting.plot_arg_multiple()
+
+            args.mrk_list = marks
+            args.crv_lab_list = labels
+            args.x_label = 'Frequency (Hz)'
+            args.y_label = 'Pk-to-Pk Response' if plt_pk2pk else 'Amplitude Response'
+            if scale_dB: args.y_label = args.y_label + ' (dB)'
+            args.fig_name = figname
+            args.plt_range = [fr_start, fr_end, r_start, r_end]
+            args.loud = True
+
+            if incl_errors:
+                Plotting.plot_multiple_curves_with_errors(hv_data, args)
+            else:
+                Plotting.plot_multiple_curves(hv_data, args)
+
+            del hv_data; del labels; del marks;
     except Exception:
         print(ERR_STATEMENT)
