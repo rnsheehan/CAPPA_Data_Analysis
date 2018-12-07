@@ -692,3 +692,15 @@ def Plot_Rsp_Data(filelist, lablist, figname, plt_pk2pk, include_errors, scale_d
             del hv_data; del labels; del marks;
     except Exception:
         print(ERR_STATEMENT)
+
+def FFT_testing():
+    # plot the computed FFT data
+    # R. Sheehan 7 - 12 - 2018
+
+    FUNC_NAME = ".FFT_testing()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        pass
+    except Exception:
+        print(ERR_STATEMENT)
