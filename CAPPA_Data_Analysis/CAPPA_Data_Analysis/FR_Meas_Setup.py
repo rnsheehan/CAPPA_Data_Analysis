@@ -29,7 +29,8 @@ def Meas_Setup_Plots():
 
     try:
         #DATA_HOME = "C:/Users/Robert/Research/CAPPA/Data/FR_Meas_Eq_Circ/"
-        DATA_HOME = "C:/Users/Robert/Research/CAPPA/Data/Scope_SetUp_Calibration/"
+        #DATA_HOME = "C:/Users/Robert/Research/CAPPA/Data/Scope_SetUp_Calibration/"
+        DATA_HOME = "C:/Users/Robert/Research/CAPPA/Data/PhC_FR_Swp/"
 
         if os.path.isdir(DATA_HOME):
             os.chdir(DATA_HOME)
@@ -63,7 +64,6 @@ def Meas_Setup_Plots():
             #filename = 'FR_Meas_Simple_R_10_C_1nF_A_01.csv'
             #Plot_Vin_Vout(filename, Conn_type)
             #Plot_Response(filename, Conn_type)
-
         else:
             raise EnvironmentError
     except EnvironmentError:
@@ -599,22 +599,60 @@ def Make_Rsp_Plot():
     try:
         filelist = []
         lablist = []
-        #name_template = 'Brd_Rsp_Data'
-        #name_template = 'R_46_Rsp_Data'
-        name_template = 'R_46_C_470_pF_Rsp_Data'
-        #name_template = 'R_46_C_47_nF_Rsp_Data'
-        vals = ['01', '05', '07', '10']
-        vpp = [0.1, 0.5, 0.7, 1.0]
-        for v in range(0, len(vals), 1):
-            filename = "%(v2)s_%(v1)s.txt"%{"v2":name_template, "v1":vals[v]}
+
+        ##name_template = 'Brd_Rsp_Data'
+        ##name_template = 'R_46_Rsp_Data'
+        #name_template = 'R_46_C_470_pF_Rsp_Data'
+        ##name_template = 'R_46_C_47_nF_Rsp_Data'
+        #vals = ['01', '05', '07', '10']
+        #vpp = [0.1, 0.5, 0.7, 1.0]
+        #for v in range(0, len(vals), 1):
+        #    filename = "%(v2)s_%(v1)s.txt"%{"v2":name_template, "v1":vals[v]}
+        #    if glob.glob(filename):
+        #        filelist.append(filename)
+        #        lablist.append("$V_{pp}$ = %(v1)0.1f V"%{"v1":vpp[v]})
+
+        name_template = 'SRS_small_sig_output'
+        vals = ['005', '01', '02', '03']
+        vpp = [0.05, 0.1, 0.2, 0.3]
+        noyes = ['no', 'yes']
+        #for v in range(0, len(vals), 1):
+        #    #filename = "SRS_Vpp_%(v1)s_2m_cbl_btee_%(v2)s.txt"%{"v1":vals[v], "v2":noyes[0]}
+        #    filename = "SRS_Vpp_%(v1)s_2m_cbl_btee_%(v2)s.txt"%{"v1":vals[v], "v2":noyes[1]}
+        #    if glob.glob(filename):
+        #        filelist.append(filename)
+        #        lablist.append("$V_{pp}$ = %(v1)0.2f V"%{"v1":vpp[v]})
+
+        vppchce = 2
+        for v in range(0, len(noyes), 1):
+            filename = "SRS_Vpp_%(v1)s_2m_cbl_btee_%(v2)s.txt"%{"v1":vals[vppchce], "v2":noyes[v]}
             if glob.glob(filename):
                 filelist.append(filename)
-                lablist.append("$V_{pp}$ = %(v1)0.1f V"%{"v1":vpp[v]})
+                lablist.append("$V_{pp}$ = %(v1)0.2f V, Bias Tee: %(v2)s"%{"v1":vpp[vppchce], "v2":noyes[v]})
 
-        figname = name_template + '_plot'
-        plt_pk2pk = False
-        include_errors = False
-        scale_dB = True
+        v = 1
+        filename = "SRS_Vpp_%(v1)s_2m_cbl_btee_%(v2)s_del_750.txt"%{"v1":vals[vppchce], "v2":noyes[v]}
+        if glob.glob(filename):
+            filelist.append(filename)
+            lablist.append("$V_{pp}$ = %(v1)0.2f V, Bias Tee: %(v2)s, $\Delta$ = 750 ms"%{"v1":vpp[vppchce], "v2":noyes[v]})
+
+        v = 1
+        filename = "SRS_Vpp_%(v1)s_2m_cbl_btee_%(v2)s_mdel_500.txt"%{"v1":vals[vppchce], "v2":noyes[v]}
+        if glob.glob(filename):
+            filelist.append(filename)
+            lablist.append("$V_{pp}$ = %(v1)0.2f V, Bias Tee: %(v2)s, $\Delta$ = 500 ms"%{"v1":vpp[vppchce], "v2":noyes[v]})
+
+        v = 1
+        filename = "SRS_Vpp_%(v1)s_2m_cbl_btee_%(v2)s_tdel_750.txt"%{"v1":vals[vppchce], "v2":noyes[v]}
+        if glob.glob(filename):
+            filelist.append(filename)
+            lablist.append("$V_{pp}$ = %(v1)0.2f V, Bias Tee: %(v2)s, $t\Delta$ = 750 ms"%{"v1":vpp[vppchce], "v2":noyes[v]})
+
+        #figname = name_template + 'btee_yes_plot'
+        figname = name_template + '_splot'
+        plt_pk2pk = True
+        include_errors = True
+        scale_dB = False
         Plot_Rsp_Data(filelist, lablist, figname, plt_pk2pk, include_errors, scale_dB)
 
     except Exception:
@@ -657,19 +695,19 @@ def Plot_Rsp_Data(filelist, lablist, figname, plt_pk2pk, include_errors, scale_d
                 data = Common.transpose_multi_col(data)
                 if incl_errors:
                     hv_data.append([data[frqcol], data[datacol], data[errcol]]); 
-                    marks.append(Plotting.labs[count]); labels.append(lablist[f]);
+                    marks.append(Plotting.labs_lins[count]); labels.append(lablist[f]);
                 else:
                     if scale_dB:
                         for j in range(0, len(data[datacol]), 1):
                             data[datacol][j] = Common.convert_dB(data[datacol][j], 1.0); 
                     hv_data.append([data[frqcol], data[datacol]]); 
-                    marks.append(Plotting.labs[count]); labels.append(lablist[f]);
+                    marks.append(Plotting.labs_lins[count]); labels.append(lablist[f]);
                 count = (count + 1)%len(Plotting.labs)
 
             # record start and end frequencies
             fr_start = hv_data[0][0][0]
-            #fr_end = hv_data[0][0][-1]
-            fr_end = 20e+6
+            fr_end = hv_data[0][0][-1]
+            #fr_end = 20e+6
             r_start = 0.0 if scale_dB == False else -20
             r_end = 1.0 if scale_dB == False else 1.0
 
