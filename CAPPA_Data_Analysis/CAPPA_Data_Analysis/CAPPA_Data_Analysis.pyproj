@@ -21,6 +21,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CAPPA_Data_Analysis.py" />
+    <Compile Include="DANCER.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DBR_Analysis.py" />
     <Compile Include="FR_Meas_Setup.py">
       <SubType>Code</SubType>
