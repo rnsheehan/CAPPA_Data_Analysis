@@ -33,7 +33,7 @@ def DANCER_Plots():
             os.chdir(DATA_HOME)
             print(os.getcwd())  
 
-            estimate_PhC_capacitance()
+            plot_PhC_response(True)
             
         else:
             raise EnvironmentError
@@ -171,6 +171,7 @@ def plot_PhC_response(scale_horz = False):
         fr_file = "Swp_FR_MHz.txt"
         resp_file_1 = "Vin_BNC_Vpp_03.txt"        
         resp_file_11 = "Vout_HSPD_Vpp_03.txt"
+        #resp_file_11 = "100_1000kHz_step_50kHzpk_pk.dat"
 
         resp_file_2 = "Vin_BNC_Vpp_05.txt"
         resp_file_12 = "Vout_HSPD_Vpp_05.txt"
