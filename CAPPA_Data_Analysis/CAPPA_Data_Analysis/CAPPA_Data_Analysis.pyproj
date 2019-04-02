@@ -31,6 +31,9 @@
     <Compile Include="Redfinch_AWG.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="RSOA_Meas.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Yenista_TLS.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
