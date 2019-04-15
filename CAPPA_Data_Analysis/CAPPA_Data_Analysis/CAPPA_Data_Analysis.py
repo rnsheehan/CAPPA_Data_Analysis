@@ -20,6 +20,7 @@ import FR_Meas_Setup
 import Redfinch_AWG
 import DANCER
 import RSOA_Meas
+import TIDA_Data
 
 def main():
     pass
@@ -41,4 +42,6 @@ if __name__ == '__main__':
 
     #DANCER.DANCER_Plots()
 
-    RSOA_Meas.plot_Vpp_R_Curve()
+    #RSOA_Meas.plot_Vpp_R_Curve()
+
+    TIDA_Data.Plot_SiN_RI()
