@@ -111,3 +111,144 @@ def Plot_SiN_RI():
         print('Cannot find',DATA_HOME)
     except Exception:
         print(ERR_STATEMENT)
+
+def Plot_Dispersion_Curve_Data():
+    # plot the computed SiN Wire WG dispersion curve data for the AWG
+    # R. Sheehan 17 - 4 - 2019
+
+    FUNC_NAME = ".Plot_Dispersion_Curve_Data()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        DATA_HOME = 'c:/users/robert/Research/CAPPA/TIDA/SiN_AWG_Design/'
+        
+        if os.path.isdir(DATA_HOME):
+            os.chdir(DATA_HOME); 
+            
+            hval = 0.3; 
+
+            wlist = np.arange(1, 2.25, 0.25); 
+
+            neff_avg = np.zeros( len(wlist) ); ng_avg = np.zeros( len(wlist) ); 
+
+            avg_file = open('Average_Index_Values.txt', 'w')
+
+            filelist = []
+
+            for i in range(0, len(wlist), 1):
+                filename = "Wire_WG_Dispersion_W_%(v1)0.2f_H_%(v2)0.2f.txt"%{"v1":wlist[i], "v2":hval}
+                if glob.glob(filename):
+                    ret_val = Plot_single_disp_data_set(filename)
+                    neff_avg[i] = ret_val[0]; ng_avg[i] = ret_val[1]; 
+                    avg_file.write("%(v1)0.2f, %(v2)0.3f, %(v3)0.3f\n"%{"v1":wlist[i], "v2":ret_val[0], "v3":ret_val[1]})
+                    filelist.append(filename)
+
+            avg_file.close()
+
+            # Make a plot of the average indices versus WG width
+            args = Plotting.plot_arg_multiple()
+
+            args.x_label = 'Waveguide Width ($\mu$m)'
+            args.y_label = 'Average Index'
+            args.mrk_list = [Plotting.labs[0], Plotting.labs[1]]
+            args.crv_lab_list = ['$<n_{eff}>$', '$<n_{g}>$']
+            args.loud = False
+            args.fig_name = 'Average_Indices'
+
+            Plotting.plot_multiple_curves([ [wlist, neff_avg], [wlist, ng_avg] ], args)
+
+        else:
+            raise EnvironmentError
+    except EnvironmentError:
+        print(ERR_STATEMENT)
+        print('Cannot find',DATA_HOME)
+    except Exception:
+        print(ERR_STATEMENT)
+
+def Plot_single_disp_data_set(filename, loud = False):
+    # make a plot of the data inside a single file
+    # plot the effective index and the group index on the same plot
+    # R. Sheehan 17 - 4 - 2019
+
+    FUNC_NAME = ".Plot_single_disp_data_set()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        if glob.glob(filename):
+            data = np.loadtxt(filename, delimiter = ',', unpack = True);
+
+            neff_mean = np.mean(data[1]); ng_mean = np.mean(data[2])
+            neff_range = 0.5*(np.max(data[1])-np.min(data[1])); 
+            ng_range = 0.5*(np.max(data[2])-np.min(data[2])); 
+            
+            if loud:
+                print(filename)
+                print("n_{eff} =",neff_mean,"+/-", neff_range)
+                print("rel. err n_{eff} =",200*(neff_range/neff_mean) )
+                print("n_{g} =",ng_mean,"+/-",ng_range )
+                print("rel. err n_{g} =",200*(ng_range/ng_mean) )
+                print("")
+
+            # make a plot of the data in the file
+            args = Plotting.plot_arg_multiple()
+
+            args.loud = loud
+            args.x_label = 'Wavelength ($\mu$m)'
+            args.y_label = 'Index Value'
+            args.mrk_list = [Plotting.labs[0], Plotting.labs[1]]
+            args.crv_lab_list = ['$n_{eff}(\lambda)$', '$n_{g}(\lambda)$']
+            args.fig_name = filename.replace('.txt','').replace('.','')
+
+            Plotting.plot_multiple_curves([[data[0], data[1]], [data[0], data[2]]], args)
+
+            del args; del data; 
+
+            return [neff_mean, ng_mean]
+        else:
+            raise Exception
+    except Exception:
+        print(ERR_STATEMENT)
+
+def Plot_coupling_coeff(loud = False):
+    # plot the simulated coupling coefficients for the different WG widths
+    # R. Sheehan 17 - 4 - 2019
+
+    FUNC_NAME = ".Plot_coupling_coeff()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        DATA_HOME = 'c:/users/robert/Research/CAPPA/TIDA/SiN_AWG_Design/'
+
+        if os.path.isdir(DATA_HOME):
+            os.chdir(DATA_HOME)
+
+            wlist = np.arange(1, 2.25, 0.25);
+
+            hv_list = []; labels = []; marks = []
+
+            for i in range(0, len(wlist), 1):
+                filename = "Coupling_Coeff_W_%(v1)0.2f.txt"%{"v1":wlist[i]}
+
+                if glob.glob(filename):
+                    data = np.loadtxt(filename, delimiter = ',', unpack = True)
+                    hv_list.append(data); marks.append(Plotting.labs[i]); labels.append("W = %(v1)0.2f"%{"v1":wlist[i]})
+
+            if len(hv_list) > 0:
+                args = Plotting.plot_arg_multiple()
+
+                args.loud = loud
+                args.x_label = 'Waveguide Separation ($\mu$m)'
+                args.y_label = 'Coupling Coefficient $(\mu m)^{-1}$'
+                args.crv_lab_list = labels
+                args.mrk_list = marks
+                args.log_y = True
+                args.fig_name = 'WaveguideCouplingCoefficients'
+
+                Plotting.plot_multiple_curves(hv_list, args)
+        else:
+            raise EnvironmentError
+    except EnvironmentError:
+        print(ERR_STATEMENT)
+        print('Cannot find',DATA_HOME)
+    except Exception:
+        print(ERR_STATEMENT)

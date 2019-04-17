@@ -44,4 +44,6 @@ if __name__ == '__main__':
 
     #RSOA_Meas.plot_Vpp_R_Curve()
 
-    TIDA_Data.Plot_SiN_RI()
+    #TIDA_Data.Plot_SiN_RI()
+
+    TIDA_Data.Plot_coupling_coeff(True)
