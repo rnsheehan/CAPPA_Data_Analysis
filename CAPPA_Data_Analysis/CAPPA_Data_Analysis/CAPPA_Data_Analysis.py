@@ -21,6 +21,7 @@ import Redfinch_AWG
 import DANCER
 import RSOA_Meas
 import TIDA_Data
+import COSMICC_Data
 
 def main():
     pass
@@ -48,4 +49,10 @@ if __name__ == '__main__':
 
     #TIDA_Data.Plot_coupling_coeff(True)
 
-    TIDA_Data.Filter_Data()
+    #TIDA_Data.Filter_Data()
+
+    num = 2
+
+    COSMICC_Data.Nanostick_Spectrum(num)
+    
+    COSMICC_Data.Nanostick_Peak_Analysis(num)
