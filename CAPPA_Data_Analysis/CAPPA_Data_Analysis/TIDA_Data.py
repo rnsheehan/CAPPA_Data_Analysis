@@ -67,10 +67,10 @@ def SiN_Data():
         else:
             raise EnvironmentError
     except EnvironmentError:
-        print(ERR_STATEMENT)
+        print(ERR_STATEMENT);
         print('Cannot find',DATA_HOME)
-    except Exception:
-        print(ERR_STATEMENT)
+    except Exception as e:
+        print(ERR_STATEMENT);print(e);
 
 def Plot_SiN_RI():
     # make a comparison of the SiN data that you have
@@ -107,10 +107,10 @@ def Plot_SiN_RI():
         else:
             raise EnvironmentError
     except EnvironmentError:
-        print(ERR_STATEMENT)
+        print(ERR_STATEMENT);
         print('Cannot find',DATA_HOME)
-    except Exception:
-        print(ERR_STATEMENT)
+    except Exception as e:
+        print(ERR_STATEMENT);print(e);
 
 def Plot_Dispersion_Curve_Data():
     # plot the computed SiN Wire WG dispersion curve data for the AWG
@@ -160,10 +160,10 @@ def Plot_Dispersion_Curve_Data():
         else:
             raise EnvironmentError
     except EnvironmentError:
-        print(ERR_STATEMENT)
+        print(ERR_STATEMENT);
         print('Cannot find',DATA_HOME)
-    except Exception:
-        print(ERR_STATEMENT)
+    except Exception as e:
+        print(ERR_STATEMENT);print(e);
 
 def Plot_single_disp_data_set(filename, loud = False):
     # make a plot of the data inside a single file
@@ -206,8 +206,8 @@ def Plot_single_disp_data_set(filename, loud = False):
             return [neff_mean, ng_mean]
         else:
             raise Exception
-    except Exception:
-        print(ERR_STATEMENT)
+    except Exception as e:
+        print(ERR_STATEMENT);print(e);
 
 def Plot_coupling_coeff(loud = False):
     # plot the simulated coupling coefficients for the different WG widths
@@ -248,7 +248,71 @@ def Plot_coupling_coeff(loud = False):
         else:
             raise EnvironmentError
     except EnvironmentError:
-        print(ERR_STATEMENT)
+        print(ERR_STATEMENT);
         print('Cannot find',DATA_HOME)
-    except Exception:
-        print(ERR_STATEMENT)
+    except Exception as e:
+        print(ERR_STATEMENT);print(e);
+
+def Filter_Data(loud = False):
+
+    # plot the measured filter bias versus output wavelength for the Micron Optics FP filter FFP-C Tunable Filter
+    # R. Sheehan 1 - 7 - 2019
+
+    FUNC_NAME = ".Filter_Data()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        DATA_HOME = 'c:/users/robert/Research/CAPPA/Data/Filter_Analysis/'
+
+        if os.path.isdir(DATA_HOME):
+            os.chdir(DATA_HOME)
+            print(os.getcwd())
+
+            filename = "Filter_Data.csv"
+
+            if glob.glob(filename):
+                data = np.loadtxt(filename, skiprows = 1, delimiter = ',', unpack = True)
+
+                if data is not None:
+                    print(filename,"read successfully")
+                    print("No. columns:",len(data),", No. rows:",len(data[0]))
+
+                    arguments = Plotting.plot_arg_single()
+
+                    # Plot the set DC bias versus the locked DC bias
+                    arguments.x_label = 'Set DC Offset (V)'
+                    arguments.y_label = 'Locked DC Offset (V)'
+                    arguments.loud = True
+                    arguments.fig_name = 'Set_versus_Locked_DC_Offset'
+
+                    Plotting.plot_single_linear_fit_curve(data[0], data[1], arguments)
+
+                    # plot the DC bias versus output wavelength
+                    arguments.x_label = 'Locked DC Offset (V)'
+                    arguments.y_label = 'Measured Wavelength (nm)'
+                    arguments.loud = True
+                    arguments.fig_name = 'Wavelength_versus_DC_Offset'
+
+                    Plotting.plot_single_linear_fit_curve(data[1], data[2], arguments)
+
+                    # plot the wavelength versus spectral power
+                    arguments.y_label = 'Power (dBm / 0.01 nm)'
+                    arguments.x_label = 'Measured Wavelength (nm)'
+                    arguments.loud = True
+                    arguments.fig_name = 'Power_versus_Wavelength'
+
+                    Plotting.plot_single_curve(data[2], data[3], arguments)
+
+                    del data
+                else:
+                    raise Exception
+            else:
+                raise Exception
+        else:
+            raise EnvironmentError
+    except EnvironmentError:
+        print(ERR_STATEMENT);
+        print('Cannot find',DATA_HOME)
+    except Exception as e:
+        print(ERR_STATEMENT);
+        print(e); 

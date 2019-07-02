@@ -46,4 +46,6 @@ if __name__ == '__main__':
 
     #TIDA_Data.Plot_SiN_RI()
 
-    TIDA_Data.Plot_coupling_coeff(True)
+    #TIDA_Data.Plot_coupling_coeff(True)
+
+    TIDA_Data.Filter_Data()
