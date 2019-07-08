@@ -51,12 +51,12 @@ if __name__ == '__main__':
 
     #TIDA_Data.Filter_Data()
 
-    #num = 2
+    num = 2
 
-    #COSMICC_Data.Nanostick_Spectrum(num, True, True)
+    COSMICC_Data.Nanostick_Spectrum(num, True, True)
     
-    #COSMICC_Data.Nanostick_Peak_Analysis(num)
+    COSMICC_Data.Nanostick_Peak_Analysis(num)
 
     #COSMICC_Data.peak_search_example()
 
-    COSMICC_Data.Nanostick_Spectra(False, True)
+    #COSMICC_Data.Nanostick_Spectra(False, True)
