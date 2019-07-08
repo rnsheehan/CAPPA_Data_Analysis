@@ -59,4 +59,4 @@ if __name__ == '__main__':
 
     #COSMICC_Data.peak_search_example()
 
-    COSMICC_Data.Nanostick_Spectra(True, True)
+    COSMICC_Data.Nanostick_Spectra(False, True)

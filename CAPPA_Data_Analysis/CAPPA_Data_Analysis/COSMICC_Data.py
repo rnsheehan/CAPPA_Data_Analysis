@@ -89,6 +89,7 @@ def Nanostick_Spectra(normalise = False, loud = False):
             print(os.getcwd())
 
             numlst = [0, 1, 2]
+            sep_list = [50, 150, 250]
             hv_data = []; mrk_lst = []; lab_lst = []
             for i in range(0, len(numlst), 1):
                 filename = 'd1_3%(v1)d_.dat'%{"v1":numlst[i]}
@@ -102,7 +103,8 @@ def Nanostick_Spectra(normalise = False, loud = False):
                             data[1][j] = 1.0+(data[1][j] / scal_fac)
                     hv_data.append(data); 
                     mrk_lst.append(Plotting.labs_lins[i%len(Plotting.labs_lins)]); 
-                    lab_lst.append(filename.replace('.dat',''))
+                    #lab_lst.append(filename.replace('.dat',''))
+                    lab_lst.append("D = %(v1)d nm"%{"v1":sep_list[i]})
 
             if hv_data is not None:
                 # plot the data in the file
@@ -112,10 +114,13 @@ def Nanostick_Spectra(normalise = False, loud = False):
                 arguments.x_label = 'Wavelength (nm)'
                 arguments.mrk_list = mrk_lst
                 arguments.crv_lab_list = lab_lst
-                #arguments.plt_range = [1520, 1526, -76, -56]
-                arguments.plt_range = [1520, 1540, 0.0, 0.4]
+                if normalise:
+                    arguments.plt_range = [1520, 1540, 0.0, 0.4]
+                else:
+                    #arguments.plt_range = [1520, 1526, -76, -56]
+                    arguments.plt_range = [1520, 1540, -76, -46]
                 arguments.loud = loud
-                #arguments.fig_name = 'Combined_Nanostick_Spectra_Zoom_1'
+                arguments.fig_name = 'Combined_Nanostick_Spectra'
 
                 Plotting.plot_multiple_curves(hv_data, arguments)
 
