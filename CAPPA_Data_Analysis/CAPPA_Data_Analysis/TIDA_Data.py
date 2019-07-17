@@ -131,14 +131,16 @@ def Plot_Dispersion_Curve_Data():
 
             neff_avg = np.zeros( len(wlist) ); ng_avg = np.zeros( len(wlist) ); 
 
-            avg_file = open('Average_Index_Values.txt', 'w')
+            pol_str = 'TM'
+
+            avg_file = open('Average_Index_Values_%(v1)s.txt'%{"v1":pol_str}, 'w')
 
             filelist = []
 
             for i in range(0, len(wlist), 1):
-                filename = "Wire_WG_Dispersion_W_%(v1)0.2f_H_%(v2)0.2f.txt"%{"v1":wlist[i], "v2":hval}
+                filename = "Wire_WG_Dispersion_W_%(v1)0.2f_H_%(v2)0.2f_%(v3)s.txt"%{"v1":wlist[i], "v2":hval, "v3":pol_str}
                 if glob.glob(filename):
-                    ret_val = Plot_single_disp_data_set(filename)
+                    ret_val = Plot_single_disp_data_set(filename, True)
                     neff_avg[i] = ret_val[0]; ng_avg[i] = ret_val[1]; 
                     avg_file.write("%(v1)0.2f, %(v2)0.3f, %(v3)0.3f\n"%{"v1":wlist[i], "v2":ret_val[0], "v3":ret_val[1]})
                     filelist.append(filename)
@@ -153,7 +155,7 @@ def Plot_Dispersion_Curve_Data():
             args.mrk_list = [Plotting.labs[0], Plotting.labs[1]]
             args.crv_lab_list = ['$<n_{eff}>$', '$<n_{g}>$']
             args.loud = False
-            args.fig_name = 'Average_Indices'
+            args.fig_name = 'Average_Indices_%(v1)s'%{"v1":pol_str}
 
             Plotting.plot_multiple_curves([ [wlist, neff_avg], [wlist, ng_avg] ], args)
 
@@ -226,8 +228,10 @@ def Plot_coupling_coeff(loud = False):
 
             hv_list = []; labels = []; marks = []
 
+            WL = 1535; 
+
             for i in range(0, len(wlist), 1):
-                filename = "Coupling_Coeff_W_%(v1)0.2f.txt"%{"v1":wlist[i]}
+                filename = "Coupling_Coeff_W_%(v1)0.2f_TE_WL_%(v2)d.txt"%{"v1":wlist[i], "v2":WL}
 
                 if glob.glob(filename):
                     data = np.loadtxt(filename, delimiter = ',', unpack = True)
@@ -242,7 +246,8 @@ def Plot_coupling_coeff(loud = False):
                 args.crv_lab_list = labels
                 args.mrk_list = marks
                 args.log_y = True
-                args.fig_name = 'WaveguideCouplingCoefficients'
+                args.fig_name = 'WaveguideCouplingCoefficients_%(v1)d'%{"v1":WL}
+                args.plt_title = '$\lambda$ = %(v1)d nm'%{"v1":WL}
 
                 Plotting.plot_multiple_curves(hv_list, args)
         else:
