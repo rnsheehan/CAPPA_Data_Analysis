@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     #TIDA_Data.Plot_coupling_coeff(True)
 
-    TIDA_Data.Plot_Dispersion_Curve_Data()
+    #TIDA_Data.Plot_Dispersion_Curve_Data()
 
     #TIDA_Data.Filter_Data()
 
@@ -62,3 +62,5 @@ if __name__ == '__main__':
     #COSMICC_Data.peak_search_example()
 
     #COSMICC_Data.Nanostick_Spectra(False, True)
+
+    COSMICC_Data.Nanostick_Laser_Data()

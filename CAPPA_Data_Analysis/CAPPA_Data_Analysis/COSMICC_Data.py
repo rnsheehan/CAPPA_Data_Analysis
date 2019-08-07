@@ -216,3 +216,84 @@ def peak_search_example():
     plt.hlines(*results_half[1:], color="C2")
     #plt.hlines(*results_full[1:], color="C3")
     plt.show()
+
+def Nanostick_Laser_Data():
+    # parse the measured Nanostick laser data
+    # use the data to compute the cavity length
+    # check that it correlates with physical dimensions
+    # R. Sheehan 6 - 8 - 2019
+
+    FUNC_NAME = ".Nanostick_Laser_Data()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        DATA_HOME = 'c:/users/robert/Research/CAPPA/Data/COSMICC/Nanosticks/June_2019/Laser_Results/'
+
+        if os.path.isdir(DATA_HOME):
+
+            os.chdir(DATA_HOME)
+
+            print(os.getcwd())
+
+            filenames = ["20C_31_d1_7__wave.dat","20C_31_d1_7__current.dat", "20C_31_d1_7__OSA.dat"]
+
+            wl_data = np.loadtxt(filenames[0], unpack = True)
+            current_data = np.loadtxt(filenames[1], unpack = True)
+            osa_data = np.loadtxt(filenames[2], unpack = True)
+
+            wl_data = 1.0e+9 * wl_data # scale wl to nm
+            fr_data = np.zeros( len(wl_data) ); # scale frequency to PHz =1e+15 Hz
+            #speed_of_light = 300 # speed of light in units of nm.PHz
+            speed_of_light = 3e+5 # speed of light in units of nm.THz
+            for i in range(0, len(fr_data), 1):
+                fr_data[i] = speed_of_light / wl_data[i] # frequency in units of THz
+
+            print("WL dims:",wl_data.shape)
+            print("Il dims:",current_data.shape)
+            print("OSA dims:",osa_data.shape)
+
+            # make some plots to test the import
+            args = Plotting.plot_arg_single()
+
+            jj = 45
+
+            args.loud = True
+            args.marker = 'g-'
+            #args.x_label = 'wavelength (nm)'
+            args.x_label = 'frequency (THz)'
+            args.y_label = 'spectral density (dBm / 50 pm)'
+            args.plt_title = '$I_{RSOA} = %(v1)0.1f mA$'%{"v1":current_data[jj]}
+
+            Plotting.plot_single_curve(fr_data, osa_data[jj], args)
+
+            # write some data to afile for analysis
+            wl_file = "Wavelength.txt"
+            Common.write_data(wl_file, wl_data); 
+
+            wl_file = "Actual_Frequency.txt"
+            Common.write_data(wl_file, 1.0e+12*fr_data);
+
+            spct_file = "Spectrum_I_%(v1)d.txt"%{"v1":current_data[jj]}
+            Common.write_data(spct_file, osa_data[jj]); 
+
+            # read in and plot the FFT data
+            frq_data = Common.read_data("Spectrum_I_150_Frq_data.txt")
+            fft_data = Common.read_data("Spectrum_I_150_Abs_FFT_data.txt")
+
+            # make the plot
+            args.loud = True
+            args.marker = 'r-'
+            args.x_label = 'Time (s)'
+            args.y_label = 'FFT'
+            args.plt_title = '$I_{RSOA} = %(v1)0.1f mA$'%{"v1":current_data[jj]}
+
+            Plotting.plot_single_curve(frq_data, fft_data, args)
+
+        else:
+            raise EnvironmentError
+    except EnvironmentError:
+        print(ERR_STATEMENT);
+        print('Cannot find',DATA_HOME)
+    except Exception as e:
+        print(ERR_STATEMENT)
+        print(e)
