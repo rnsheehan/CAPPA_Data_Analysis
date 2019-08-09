@@ -63,4 +63,6 @@ if __name__ == '__main__':
 
     #COSMICC_Data.Nanostick_Spectra(False, True)
 
-    COSMICC_Data.Nanostick_Laser_Data()
+    #COSMICC_Data.Nanostick_Laser_Data()
+
+    COSMICC_Data.Read_Data(True)

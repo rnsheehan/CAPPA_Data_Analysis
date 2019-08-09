@@ -7,6 +7,7 @@ import math
 import scipy
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
 import Common
 import Plotting
@@ -297,3 +298,53 @@ def Nanostick_Laser_Data():
     except Exception as e:
         print(ERR_STATEMENT)
         print(e)
+
+def Read_Data(loud = False):
+    # Parse the Nanostick Data frame
+
+    # R. Sheehan 8 - 8 - 2019
+
+    FUNC_NAME = ".Read_Data()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        DATA_HOME = 'c:/users/robert/Research/CAPPA/TIDA/Nanosticks/'
+
+        if os.path.isdir(DATA_HOME):
+
+            os.chdir(DATA_HOME)
+
+            print(os.getcwd())
+
+            filename = "Nanostick_Dataframe.csv"
+
+            if glob.glob(filename):
+                print("File:",filename,"found")
+
+                data = pd.read_csv( filename, sep = ',')
+
+                titles = list(data) # extract the names of the columns in the data-frame
+                # will have to decide which column contains the target, and which columns the attribute data
+
+                if loud:
+                    print("Data read into memory")
+                    #print(titles)
+                    # get some statistics about the data in the columns
+                    print("Data summary")
+                    print(data.describe())
+                    print()
+
+                return [titles, data]
+            else:
+                ERR_STATEMENT = ERR_STATEMENT + "\nCannot find file:" + filename
+                raise Exception
+        else:
+            raise EnvironmentError
+    except EnvironmentError:
+        print(ERR_STATEMENT);
+        print('Cannot find',DATA_HOME)
+        return [None, None]
+    except Exception as e:
+        print(ERR_STATEMENT)
+        print(e)
+        return [None, None]
