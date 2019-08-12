@@ -300,9 +300,16 @@ def Nanostick_Laser_Data():
         print(e)
 
 def Read_Data(loud = False):
-    # Parse the Nanostick Data frame
+    # Read the Nanostick Data frame
+    # Not all columns will contribute to the glm
 
     # R. Sheehan 8 - 8 - 2019
+
+    # From looking at the data so far it seems like Nanostick - Bus waveguide separation is the key parameter
+    # since all others are basically fixed. You will want to input desired wavelength, stick width, length centre cell to get 
+    # separation that ensures resonance at the desired wavelength. Make sure and take a measurement of the length of the chip 
+    # that was tested to measure the Nanostick optical spectra. 
+    # R. Sheehan 12 - 8 - 2019 
 
     FUNC_NAME = ".Read_Data()" # use this in exception handling messages
     ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
