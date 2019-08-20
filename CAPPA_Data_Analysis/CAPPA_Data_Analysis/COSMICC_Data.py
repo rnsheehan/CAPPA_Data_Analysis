@@ -355,3 +355,74 @@ def Read_Data(loud = False):
         print(ERR_STATEMENT)
         print(e)
         return [None, None]
+
+def Parse_Passive_NS_Data():
+    # Read in the various measured nanostick data sets
+    # Locate their resonances, store their locations
+
+    FUNC_NAME = ".Parse_Passive_NS_Data()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        DATA_HOME = 'c:/users/robert/Research/CAPPA/Data/COSMICC/Nanosticks/'
+
+        dir1 = '190518_1550nm_NB_2.5mTorr_AIR/'
+        dir2 = '190705_1550nm_NB_2.5mTorr_SOG/'
+        dir3 = '190705_1550nm_NB_10mTorr_AIR/'
+        dir4 = '190705_1550nm_NB_10mTorr_SOG/'
+
+        DATA_HOME = DATA_HOME + dir1
+
+        if os.path.isdir(DATA_HOME):
+            os.chdir(DATA_HOME)
+            print(os.getcwd())
+
+            #ns_files = glob.glob("Bot*[0-9]_.dat")
+            ns_files = glob.glob("Mid*[0-9]_.dat")
+            #ns_files = glob.glob("Top*[0-9]_.dat")
+
+            ns_file_list = []
+            for i in range(0, len(ns_files), 1):
+                retval = Common.extract_values_from_string(ns_files[i])
+                #print(int(retval[0]), ns_files[i])
+                ns_file_list.append([int(retval[0]), ns_files[i]])
+
+            Common.sort_multi_col(ns_file_list)
+
+            #print(ns_file_list)
+
+            from scipy.signal import find_peaks, peak_prominences, peak_widths
+
+            for i in range(0, 5, 1):
+                data = np.loadtxt(ns_file_list[i][1], unpack = True)
+
+                #args = Plotting.plot_arg_single()
+                #args.loud = False
+                #args.marker = 'r-'
+                #args.plt_title = ns_file_list[i][1]
+                #Plotting.plot_single_curve(data[0], data[1], args)
+
+                peaks, heights = find_peaks(-1.0*data[1], height = 5)
+                prominences = peak_prominences(-1.0*data[1], peaks)[0] # compute peak prominences
+                
+                peak_locs = []
+
+                print(ns_file_list[i][1])
+                print("no. peaks found:",len(peaks))
+                print("Peak: WL (nm), Height, Prominence")
+                for j in range(0, len(peaks), 1):
+                    if prominences[j] > 3:
+                        print("Peak:",data[0][ peaks[j] ], -heights['peak_heights'][j], prominences[j])
+                        peak_locs.append(data[0][ peaks[j] ])
+                print()
+
+                print(ns_file_list[i][0],",",peak_locs)
+
+        else:
+            raise EnvironmentError
+    except EnvironmentError:
+        print(ERR_STATEMENT);
+        print('Cannot find',DATA_HOME)
+    except Exception as e:
+        print(ERR_STATEMENT)
+        print(e)
