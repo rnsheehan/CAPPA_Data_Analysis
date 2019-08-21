@@ -65,6 +65,6 @@ if __name__ == '__main__':
 
     #COSMICC_Data.Nanostick_Laser_Data()
 
-    #COSMICC_Data.Read_Data(True)
+    COSMICC_Data.Read_Data(True)
 
-    COSMICC_Data.Parse_Passive_NS_Data()
+    #COSMICC_Data.Parse_Passive_NS_Data()

@@ -323,7 +323,7 @@ def Read_Data(loud = False):
 
             print(os.getcwd())
 
-            filename = "Nanostick_Dataframe.csv"
+            filename = "Nanostick_Dataframe_Middle.csv"
 
             if glob.glob(filename):
                 print("File:",filename,"found")
@@ -377,9 +377,9 @@ def Parse_Passive_NS_Data():
             os.chdir(DATA_HOME)
             print(os.getcwd())
 
-            #ns_files = glob.glob("Bot*[0-9]_.dat")
-            ns_files = glob.glob("Mid*[0-9]_.dat")
-            #ns_files = glob.glob("Top*[0-9]_.dat")
+            #ns_files = glob.glob("Bot*[0-9]_.dat"); thepath = 'Bottom_Resonance_Wavelengths.txt'
+            #ns_files = glob.glob("Mid*[0-9]_.dat"); thepath = 'Middle_Resonance_Wavelengths.txt'
+            ns_files = glob.glob("Top*[0-9]_.dat"); thepath = 'Top_Resonance_Wavelengths.txt'
 
             ns_file_list = []
             for i in range(0, len(ns_files), 1):
@@ -393,7 +393,9 @@ def Parse_Passive_NS_Data():
 
             from scipy.signal import find_peaks, peak_prominences, peak_widths
 
-            for i in range(0, 5, 1):
+            thefile = open(thepath, "w")
+
+            for i in range(0, len(ns_file_list), 1):
                 data = np.loadtxt(ns_file_list[i][1], unpack = True)
 
                 #args = Plotting.plot_arg_single()
@@ -409,14 +411,21 @@ def Parse_Passive_NS_Data():
 
                 print(ns_file_list[i][1])
                 print("no. peaks found:",len(peaks))
-                print("Peak: WL (nm), Height, Prominence")
+                #print("Peak: WL (nm), Height, Prominence")
                 for j in range(0, len(peaks), 1):
-                    if prominences[j] > 3:
-                        print("Peak:",data[0][ peaks[j] ], -heights['peak_heights'][j], prominences[j])
+                    if prominences[j] > 4 and data[0][ peaks[j] ] > 1525.0 and data[0][ peaks[j] ] < 1610.0:
+                        #print("Peak:",data[0][ peaks[j] ], -heights['peak_heights'][j], prominences[j])
                         peak_locs.append(data[0][ peaks[j] ])
-                print()
+                #print()
 
-                print(ns_file_list[i][0],",",peak_locs)
+                #print(ns_file_list[i][0],",",peak_locs)
+
+                thefile.write("%(v1)d,"%{"v1":ns_file_list[i][0]})
+                for k in range(0, len(peak_locs), 1):
+                    thefile.write("%(v1)0.9f,"%{"v1":peak_locs[k]})
+                thefile.write("\n")
+
+            thefile.close(); 
 
         else:
             raise EnvironmentError
