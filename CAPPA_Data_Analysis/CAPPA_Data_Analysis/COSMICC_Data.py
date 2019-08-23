@@ -356,6 +356,55 @@ def Read_Data(loud = False):
         print(e)
         return [None, None]
 
+def parse_ns_df(titles, dataframe, target):
+    # extract the data needed to build the linear model from the Nanostick dataframe
+    # R. Sheehan 22 - 8 - 2019
+
+    FUNC_NAME = ".parse_ns_df()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        if dataframe is not None:
+            # could use dataframe.shape to get n_data_points and n_cols
+            n_pts, n_cols = dataframe.shape
+
+            if target > -1 and target < n_cols:
+                # save the target data values, the y-values to be fitted by the model
+                # 15. WL 1 / nm (scale to microns)
+                # 16. WL 2 / nm (scale to microns)
+                # 17. WL 3 / nm (scale to microns)
+                target_data = dataframe[ titles[target] ].values
+
+                target_data = target_data / 1000.0 # scale wl to um
+
+                # you only want to create a model with a subset of the data, since most of the parameters are identical
+                # parameters of interest
+                # 3. bus wg curvature, units of um^{-1}
+                # 4. bus-nanostick separation, units of nm, scale to micron
+                # 13. length centre cell (optional), units of nm, scale to micron
+                # 14. distance facet to nanostick, units of um
+                for i in range(0, len(titles), 1):
+                    print(i,",",titles[i])
+
+                attrb_titles = [titles[3], titles[4], titles[14]]
+
+                attrb_data = dataframe[attrb_titles].values
+
+                # scale bus-nanostick separation to micron
+                attrb_data[:,1] = attrb_data[:,1] / 1000.0
+
+                return [attrb_titles, attrb_data, target_data]
+            else:
+                ERR_STATEMENT = ERR_STATEMENT + "\nCannot model data that is outside the dataframe"
+                raise Exception
+        else:
+            ERR_STATEMENT = ERR_STATEMENT + "\nNo dataframe was input"
+            raise Exception
+    except Exception as e:
+        print(ERR_STATEMENT)
+        print(e)
+        return [None, None]
+
 def Parse_Passive_NS_Data():
     # Read in the various measured nanostick data sets
     # Locate their resonances, store their locations
@@ -432,6 +481,111 @@ def Parse_Passive_NS_Data():
     except EnvironmentError:
         print(ERR_STATEMENT);
         print('Cannot find',DATA_HOME)
+    except Exception as e:
+        print(ERR_STATEMENT)
+        print(e)
+
+def linear_model(X, y, attrb_titles, loud = False):
+    # build a linear model from the data in the data
+    # arrays must not be empty and shapes must be compatible
+    
+    # R. Sheehan 18 - 4 - 2019
+
+    FUNC_NAME = ".linear_model()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        c1 = True if X is not None else False
+        c2 = True if y is not None else False
+        c3 = True if y.shape[0] == X.shape[0] else False
+        c10 = True if c1 and c2 and c3 else False
+        
+        if c10:
+            from random import randrange
+            from sklearn.model_selection import train_test_split  
+            from sklearn.linear_model import LinearRegression
+            
+            # create the "training" and test data sets
+            # split 65% of the data to "training" set while 35% of the data to test set using below code
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state = randrange(0, 101, 2))
+
+            # ''train'' the model
+            model = LinearRegression()  
+            
+            model.fit(X_train, y_train)
+
+            # compute the score of the fit, this is the R^{2} coefficient, or coefficient of determination
+            score = model.score(X_test, y_test)
+
+            # print the computed model coefficients
+            if len(attrb_titles) == X.shape[1]:
+                coeff_df = pd.DataFrame(model.coef_, attrb_titles, columns=['Slope']) 
+                if loud:
+                    print("\nFit Parameters")
+                    print("Intercept %0.2f:" % model.intercept_)
+                    print(coeff_df)
+                    print("Fit score: ",score)
+
+            return [model, score, coeff_df, X_test, y_test]
+        else:
+            raise Exception
+    except Exception as e:
+        print(ERR_STATEMENT)
+        print(e)
+        return [None, None, None, None, None]
+
+def train_model(X, y, attrb_titles, loud = False):
+    # build a linear model from the data
+    # train the model by maximising the coefficient of determination
+    # loop model building until R^{2} coefficient is maximised
+    # this is justified since the training data is completey randomised in this approach
+    # R. Sheehan 24 - 4 - 2019
+
+    FUNC_NAME = ".train_model()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        score = r_sqr = -1000; 
+        coeff_t = mod = Xt = yt = None; # dummy variables used during calculation
+        coeff_df = model = X_test = y_test = None; # return variables
+
+        count = 0; count_max = 30; 
+        while count < count_max:
+            mod, r_sqr, coeff_t, Xt, yt = linear_model(X, y, attrb_titles, False)
+
+            if r_sqr > score:
+                model = mod; score = r_sqr; X_test = Xt; y_test = yt; coeff_df = coeff_t; 
+                if loud:
+                    print("Model build iteration: %(v1)d, Score %(v2)0.5f"%{"v1":count, "v2":score})
+
+            count = count + 1; 
+
+        return [model, coeff_df, X_test, y_test]
+    except Exception as e:
+        print(ERR_STATEMENT)
+        print(e)
+        return [None, None, None, None]
+
+def make_prediction(Xtest, model):
+    # make a prediction of concentration value based on input measurements
+    
+    FUNC_NAME = ".train_model()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        c1 = True if Xtest is not None else False
+        c2 = True if model is not None else False
+        c10 = c1 and c2
+
+        if c10:
+            # Make a prediction from the test data
+            y_pred = model.predict(Xtest) # computes \log_{10}(concentration)
+
+            #y_pred = 10**y_pred # re-scale predicted value to original concentration
+
+            return y_pred
+        else:
+            raise Exception
     except Exception as e:
         print(ERR_STATEMENT)
         print(e)

@@ -65,6 +65,39 @@ if __name__ == '__main__':
 
     #COSMICC_Data.Nanostick_Laser_Data()
 
-    COSMICC_Data.Read_Data(True)
-
     #COSMICC_Data.Parse_Passive_NS_Data()
+
+    loud = True
+
+    titles, dataframe = COSMICC_Data.Read_Data(loud)
+
+    attrb_titles, attrb, target = COSMICC_Data.parse_ns_df(titles, dataframe, target = 16)
+
+    print(attrb.shape)
+
+    for i in range(0, len(target), 2):
+        print(attrb[i][0],",",attrb[i][1],",",attrb[i][2],",",target[i])
+
+    # ''train'' the model
+    # the test data {X_test, y_test} is a subset of the actual data set
+    # in reality X_test would be a set of measured intensity values from the
+    # control, antigen, T1 test strips
+    # there would be no equivalent y_test values
+    model, coeff_df, X_test, y_test = COSMICC_Data.train_model(attrb, target, attrb_titles, loud)
+
+    if loud:
+        print("\nModel Intercept: ",model.intercept_)
+        print("Model Coefficients: ")
+        print(coeff_df)
+        print("")
+
+    print(X_test.shape)
+
+    y_pred = COSMICC_Data.make_prediction(X_test, model)
+
+    for i in range(0, len(y_pred), 1):
+        print("Bus Curvature (um^{-1}), Bus Separation (um), Cavity Length (um):",X_test[i])
+        print("Predicted Resonance Wavelength (um):", y_pred[i])
+        print("Actual Resonance Wavelength (um):", y_test[i])
+        print("Relative Error:", 100*(y_pred[i] - y_test[i])/y_pred[i])
+        print("")
