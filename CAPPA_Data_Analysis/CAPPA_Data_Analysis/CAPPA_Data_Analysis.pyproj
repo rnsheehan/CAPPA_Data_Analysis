@@ -20,6 +20,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Am_Si.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="CAPPA_Data_Analysis.py" />
     <Compile Include="COSMICC_Data.py">
       <SubType>Code</SubType>
