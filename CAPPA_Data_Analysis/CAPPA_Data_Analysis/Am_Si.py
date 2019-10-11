@@ -35,6 +35,8 @@ def a_Si_plots():
 
             #Laser_Spectra_2()
 
+            Laser_Spectra_3()
+
             #Laser_Spectra_Combo()
 
             #Trans_Spectra()
@@ -45,7 +47,7 @@ def a_Si_plots():
 
             #More_Q_Factor_Plots()
 
-            Modulation_Depth()
+            #Modulation_Depth()
 
         else:
             raise EnvironmentError
@@ -178,7 +180,7 @@ def Laser_Spectra_2():
     # trying to find the plot the largest SMSR value try and save the SMSR readings also
     # R. Sheehan 18 - 9 - 2019
 
-    FUNC_NAME = ".Laser_Spectra()" # use this in exception handling messages
+    FUNC_NAME = ".Laser_Spectra_2()" # use this in exception handling messages
     ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
 
     try:
@@ -240,6 +242,128 @@ def Laser_Spectra_2():
     except Exception as e:
         print(ERR_STATEMENT)
         print(e)
+
+def Laser_Spectra_3():
+
+    # plot the newly obtained laser spectrum results
+    # R. Sheehan 11 - 10 - 2019
+
+    FUNC_NAME = ".Laser_Spectra_3()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        #lnum = 3
+        #DATA_HOME = "191009_LASER/"
+
+        lnum = 5
+        DATA_HOME = "190910_NEW_Results/"
+
+        if os.path.isdir(DATA_HOME):
+            cwd = os.getcwd() # store location of home directory
+
+            os.chdir(DATA_HOME) # move to directory containing data
+            print(os.getcwd())
+
+            file_template = "%(v1)d_set6_%(v2)dmA.dat"
+
+            curr_list = np.arange(20, 101, 1)
+
+            single_plots = False
+
+            make_plots = True
+
+            estimate_FWHM = True
+
+            if single_plots:
+                for i in range(0, len(curr_list), 1):
+                    file_name = file_template%{"v1":lnum, "v2":curr_list[i]}
+
+                    if glob.glob(file_name):
+
+                        #print(file_name)
+
+                        data = np.loadtxt(file_name, unpack=True)
+
+                        if data is not None and estimate_FWHM:
+                            max_val = np.max(data[1])
+                            min_val = np.min(data[1])
+                            hm_val = 0.5*(max_val+min_val)
+                            print(file_name,",",max_val,",",min_val,",",hm_val)
+                            
+                        if data is not None and make_plots:
+                            args = Plotting.plot_arg_single()
+
+                            args.loud = True
+                            args.marker = Plotting.labs_lins[0]
+                            args.x_label = 'Wavelength (nm)'
+                            args.y_label = 'Power (dBm / 50 pm)'
+                            args.fig_name = file_name.replace(".dat","")
+                            args.plt_range = [1555, 1575, -60, -20]
+
+                            Plotting.plot_single_curve(data[0], data[1], args)
+
+            multi_plot = True
+
+            if multi_plot:
+                curr_list = [30, 40, 50, 70, 90]
+
+                hv_list = []; labels = []; markers = []; 
+
+                for i in range(0, len(curr_list), 1):
+                    file_name = file_template%{"v1":lnum, "v2":curr_list[i]}
+
+                    if glob.glob(file_name):
+
+                        print(file_name)
+
+                        data = np.loadtxt(file_name, unpack=True)
+
+                        if data is not None:
+                            hv_list.append(data)
+                            labels.append("$I_{SOA}$ = %(v1)d mA"%{"v1":curr_list[i]})
+                            markers.append(Plotting.labs_lins[i])
+
+                args = Plotting.plot_arg_multiple()
+
+                args.loud = True
+                args.mrk_list = markers
+                args.crv_lab_list = labels
+                args.x_label = 'Wavelength (nm)'
+                args.y_label = 'Power (dBm / 50 pm)'
+                args.fig_name = 'Laser_5_combo'
+                args.plt_range = [1555, 1570, -57, -23]
+
+                Plotting.plot_multiple_curves(hv_list, args)
+
+            FWHM_plot = True
+
+            if FWHM_plot:
+                curr_list = [28, 30, 40, 50, 60, 70, 80, 90, 100]
+                fwhm_list = [0.12, 0.21, 0.87, 1.53, 1.62, 1.72, 1.31, 1.28, 1.61]
+
+                args = Plotting.plot_arg_single()
+
+                args.loud = True
+                args.marker = Plotting.labs[1]
+                
+                args.x_label = 'SOA Current (mA)'
+                args.y_label = 'Spectrum FWHM (nm)'
+                args.fig_name = 'Laser_5_FWHM'
+                #args.plt_range = [1555, 1570, -55, -23]
+
+                Plotting.plot_single_curve(curr_list, fwhm_list, args)
+
+            os.chdir(cwd) # return to home directory
+        else:
+            raise EnvironmentError
+    except EnvironmentError:
+        print(ERR_STATEMENT)
+        print("Cannot locate directory:",DATA_HOME)
+    except Exception as e:
+        print(ERR_STATEMENT)
+        print(e)
+
+    pass
 
 def Laser_Spectra_Combo():
     # plot the laser spectra from the existing data

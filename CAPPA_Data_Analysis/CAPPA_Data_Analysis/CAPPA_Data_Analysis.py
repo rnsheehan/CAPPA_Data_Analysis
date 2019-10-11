@@ -54,7 +54,7 @@ if __name__ == '__main__':
 
     #TIDA_Data.Filter_Data()
 
-    TIDA_Data.Filter_Spectrum()
+    #TIDA_Data.Filter_Spectrum()
 
     #num = 2
 
@@ -105,4 +105,4 @@ if __name__ == '__main__':
     #    print("Relative Error:", 100*(y_pred[i] - y_test[i])/y_pred[i])
     #    print("")
 
-    #Am_Si.a_Si_plots()
+    Am_Si.a_Si_plots()
