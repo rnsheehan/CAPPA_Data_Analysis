@@ -319,5 +319,53 @@ def Filter_Data(loud = False):
         print(ERR_STATEMENT);
         print('Cannot find',DATA_HOME)
     except Exception as e:
+        print(ERR_STATEMENT)
+        print(e)
+
+def Filter_Spectrum():
+    # plot the SOA spectrum along with it's filtered spectrum
+    # R. Sheehan 10 - 10 - 2019
+
+    FUNC_NAME = ".Filter_Data()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        DATA_HOME = 'c:/users/robert/Research/CAPPA/Data/Filter_Analysis/'
+
+        if os.path.isdir(DATA_HOME):
+            os.chdir(DATA_HOME)
+            print(os.getcwd())
+
+            file_0 = "OSA_Filt_0.csv"
+            file_1 = "OSA_Filt_1.csv"
+
+            if glob.glob(file_0) and glob.glob(file_1):
+                data_0 = np.loadtxt(file_0, delimiter = ',', unpack = True)
+                data_1 = np.loadtxt(file_1, delimiter = ',', unpack = True)
+
+                hv_list = []; markers = []; labels = []; 
+
+                hv_list.append(data_0); markers.append(Plotting.labs_lins[0]); labels.append('SOA Spectrum'); 
+                hv_list.append(data_1); markers.append(Plotting.labs_lins[1]); labels.append('Filtered SOA Spectrum'); 
+
+                args = Plotting.plot_arg_multiple()
+
+                args.loud = True
+                args.crv_lab_list = labels
+                args.mrk_list = markers
+                args.plt_range = [1550, 1560, -85, -30]
+                args.fig_name ='SOA_Filtered'
+
+                Plotting.plot_multiple_curves(hv_list, args)
+
+            else:
+                ERR_STATEMENT = ERR_STATEMENT + "Cannot locate files\n"
+                raise Exception
+        else:
+            raise EnvironmentError
+    except EnvironmentError:
         print(ERR_STATEMENT);
-        print(e);
+        print('Cannot find',DATA_HOME)
+    except Exception as e:
+        print(ERR_STATEMENT)
+        print(e)

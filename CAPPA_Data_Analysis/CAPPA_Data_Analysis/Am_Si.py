@@ -557,6 +557,7 @@ def Modulation_Depth():
         lnum = 3; wavel = 1555; 
         #lnum = 5; wavel = 1570; 
         DATA_HOME = "170922_Laser/%(v1)d"%{"v1":lnum}
+
         if os.path.isdir(DATA_HOME):
             cwd = os.getcwd() # store location of home directory
 
