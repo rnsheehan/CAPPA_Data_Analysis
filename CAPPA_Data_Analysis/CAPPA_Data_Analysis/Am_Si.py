@@ -35,9 +35,9 @@ def a_Si_plots():
 
             #Laser_Spectra_2()
 
-            Laser_Spectra_3()
+            #Laser_Spectra_3()
 
-            #Laser_Spectra_Combo()
+            Laser_Spectra_Combo()
 
             #Trans_Spectra()
 
@@ -265,24 +265,27 @@ def Laser_Spectra_3():
             print(os.getcwd())
 
             file_template = "%(v1)d_set6_%(v2)dmA.dat"
+            soa_file_template = "SOA_RR_%(v1)d.txt"
 
             curr_list = np.arange(20, 101, 1)
 
             single_plots = False
 
-            make_plots = True
+            make_plots = False
 
-            estimate_FWHM = True
+            estimate_FWHM = False
 
             if single_plots:
                 for i in range(0, len(curr_list), 1):
                     file_name = file_template%{"v1":lnum, "v2":curr_list[i]}
+                    soa_file_name = soa_file_template%{"v1":curr_list[i]}
 
-                    if glob.glob(file_name):
+                    if glob.glob(file_name) and glob.glob(soa_file_name):
 
                         #print(file_name)
 
                         data = np.loadtxt(file_name, unpack=True)
+                        soa_data = np.loadtxt(soa_file_name, unpack=False)
 
                         if data is not None and estimate_FWHM:
                             max_val = np.max(data[1])
@@ -297,12 +300,28 @@ def Laser_Spectra_3():
                             args.marker = Plotting.labs_lins[0]
                             args.x_label = 'Wavelength (nm)'
                             args.y_label = 'Power (dBm / 50 pm)'
-                            args.fig_name = file_name.replace(".dat","")
+                            #args.fig_name = file_name.replace(".dat","")
                             args.plt_range = [1555, 1575, -60, -20]
 
-                            Plotting.plot_single_curve(data[0], data[1], args)
+                            Plotting.plot_single_curve(soa_data[0], soa_data[1], args)
 
-            multi_plot = True
+                        if data is not None and soa_data is not None:
+
+                            hv_list = [data, soa_data]
+
+                            args = Plotting.plot_arg_multiple()
+
+                            args.loud = True
+                            args.mrk_list = [Plotting.labs_lins[0],Plotting.labs_dashed[1]]
+                            args.crv_lab_list = ["Laser","SOA"]
+                            args.x_label = 'Wavelength (nm)'
+                            args.y_label = 'Power (dBm / 50 pm)'
+                            args.fig_name = "Laser_SOA_"+file_name.replace(".dat","")
+                            args.plt_range = [1555, 1570, -60, -20]
+
+                            Plotting.plot_multiple_curves(hv_list, args)
+
+            multi_plot = False
 
             if multi_plot:
                 curr_list = [30, 40, 50, 70, 90]
@@ -335,7 +354,41 @@ def Laser_Spectra_3():
 
                 Plotting.plot_multiple_curves(hv_list, args)
 
-            FWHM_plot = True
+            soa_plot = True
+
+            if soa_plot:
+                curr_list = np.arange(20, 101, 10)
+                #curr_list = [30, 40, 50, 70, 90]
+
+                hv_list = []; labels = []; markers = []; 
+
+                for i in range(0, len(curr_list), 1):
+                    file_name = soa_file_template%{"v1":curr_list[i]}
+
+                    if glob.glob(file_name):
+
+                        print(file_name)
+
+                        data = np.loadtxt(file_name, unpack=False)
+
+                        if data is not None:
+                            hv_list.append(data)
+                            labels.append("$I_{SOA}$ = %(v1)d mA"%{"v1":curr_list[i]})
+                            markers.append(Plotting.labs_lins[i%len(Plotting.labs_lins)])
+
+                args = Plotting.plot_arg_multiple()
+
+                args.loud = True
+                args.mrk_list = markers
+                args.crv_lab_list = labels
+                args.x_label = 'Wavelength (nm)'
+                args.y_label = 'Power (dBm / 0.1 nm)'
+                args.fig_name = 'SOA_Combo'
+                args.plt_range = [1555, 1570, -57, -23]
+
+                Plotting.plot_multiple_curves(hv_list, args)
+
+            FWHM_plot = False
 
             if FWHM_plot:
                 curr_list = [28, 30, 40, 50, 60, 70, 80, 90, 100]
@@ -362,8 +415,6 @@ def Laser_Spectra_3():
     except Exception as e:
         print(ERR_STATEMENT)
         print(e)
-
-    pass
 
 def Laser_Spectra_Combo():
     # plot the laser spectra from the existing data
@@ -434,7 +485,7 @@ def Laser_Spectra_Combo():
             #args.plt_title = filename
             args.fig_name = 'Laser_Spectra'
             args.x_label = 'Wavelength (nm)'
-            args.y_label = 'Power (dBm)'
+            args.y_label = 'Power (dBm / 50 pm)'
             #args.plt_range = [1540, 1575, -70, -25]
             args.plt_range = [1560, 1580, -70, -25]
             args.mrk_list = markers

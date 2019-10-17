@@ -354,6 +354,9 @@ def Filter_Spectrum():
                 args.crv_lab_list = labels
                 args.mrk_list = markers
                 args.plt_range = [1550, 1560, -85, -30]
+
+                args.x_label = 'Wavelength (nm)'
+                args.y_label = 'Power (dBm / 0.1 nm)'
                 args.fig_name ='SOA_Filtered'
 
                 Plotting.plot_multiple_curves(hv_list, args)
@@ -361,6 +364,170 @@ def Filter_Spectrum():
             else:
                 ERR_STATEMENT = ERR_STATEMENT + "Cannot locate files\n"
                 raise Exception
+        else:
+            raise EnvironmentError
+    except EnvironmentError:
+        print(ERR_STATEMENT);
+        print('Cannot find',DATA_HOME)
+    except Exception as e:
+        print(ERR_STATEMENT)
+        print(e)
+
+def SOA_Spectra():
+    # Plot the measured Spectra from the Kamelian SOA
+    # R. Sheehan 17 - 10 - 2019
+
+    FUNC_NAME = ".SOA_Spectra()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        DATA_HOME = 'c:/users/robert/Research/CAPPA/Data/TIDA_NS/SOA_Spectra'
+
+        if os.path.isdir(DATA_HOME):
+            
+            os.chdir(DATA_HOME)
+
+            print(os.getcwd())
+
+            # Plot the spectra of the SOA+Retro-Reflector for different current values
+            
+            file_template = "SOA_%(v1)dmA.txt"
+            curr_list = [70, 80, 120, 160]
+
+            #file_template = "SOA_%(v1)dmA_Plus_RR_Plus_Iso.txt"
+            #curr_list = [70, 80, 120, 160]
+
+            hv_list = []; markers = []; labels = []; 
+
+            #for i in range(0, len(curr_list), 1):
+            #    file_name = file_template%{"v1":curr_list[i]}
+
+            #    if glob.glob(file_name):
+            #        data = np.loadtxt(file_name)
+
+            #        hv_list.append(data)
+            #        markers.append(Plotting.labs_lins[i])
+            #        labels.append("$I_{SOA}$ = %(v1)d mA"%{"v1":curr_list[i]})
+
+            files = ['SOA_80mA_No_RR.txt','SOA_80mA_No_RR_Plus_Iso.txt','SOA_80mA_Plus_RR_Plus_Iso.txt']
+            labels = ['No RR, No Iso', 'No RR, With Iso', 'With RR, With Iso']
+
+            count = 0
+            for x in files:                
+                data = np.loadtxt(x)
+
+                hv_list.append(data)
+                markers.append(Plotting.labs_lins[count])
+
+                count = count + 1
+
+            if len(hv_list) > 0:
+                args = Plotting.plot_arg_multiple()
+
+                args.loud = True
+                args.crv_lab_list = labels
+                args.mrk_list = markers
+                #args.plt_title = 'SOA with Retro-Reflector, No Isolator'
+                #args.fig_name = 'SOA_RR_No_Iso'
+                args.plt_title = 'SOA Comparison at 80 mA'
+                args.fig_name = 'SOA_Comparison'
+                #args.plt_title = 'SOA with Retro-Reflector and Isolator'
+                #args.fig_name = 'SOA_RR_With_Iso'
+                args.x_label = 'Wavelength (nm)'
+                args.y_label = 'Power (dBm / 0.05 nm)'
+                #args.plt_range = [1525, 1545, -32, -20]
+                args.plt_range = [1525, 1545, -43, -28]
+
+                Plotting.plot_multiple_curves(hv_list, args)
+
+            del hv_list; del labels; del markers;             
+        else:
+            raise EnvironmentError
+    except EnvironmentError:
+        print(ERR_STATEMENT);
+        print('Cannot find',DATA_HOME)
+    except Exception as e:
+        print(ERR_STATEMENT)
+        print(e)
+
+def NS_Spectra():
+    # Plot the measured Spectra from the Nanostick Devices
+    # R. Sheehan 17 - 10 - 2019
+
+    FUNC_NAME = ".NS_Spectra()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        DATA_HOME = 'c:/users/robert/Research/CAPPA/Data/TIDA_NS/Device_Spectra'
+
+        if os.path.isdir(DATA_HOME):
+            
+            os.chdir(DATA_HOME)
+
+            print(os.getcwd())
+
+            hv_list = []; markers = []; labels = []; 
+
+            # Include the SOA spectrum in each plot
+            SOA_file = 'SOA_80mA_Plus_RR_Plus_Iso.txt'
+            SOA_data = np.loadtxt(SOA_file)
+
+            #hv_list.append(SOA_data); markers.append(Plotting.labs_dashed[-1]); labels.append('Input')
+
+            width = 11
+            length = 4262
+            SU8 = 'Yes'
+
+            ns_vals = [30, 31, 32]
+            d_vals = [50, 150, 250]
+
+            file_template = "W_%(v1)d_L_%(v2)d_%(v3)s_SU8_NS_%(v4)d_D_%(v5)d_R1.txt"            
+
+            for i in range(0, len(ns_vals), 1):
+                file_name = file_template%{"v1":width, "v2":length, "v3":SU8, "v4":ns_vals[i], "v5":d_vals[i]}
+
+                if glob.glob(file_name):
+                    data = np.loadtxt(file_name)
+
+                    # Normalise the data
+                    max = math.fabs(np.max(data[1]))
+
+                    for j in range(0, len(data[1]), 1):
+                        data[1][j] = data[1][j] + max
+
+                    hv_list.append(data)
+                    markers.append(Plotting.labs_lins[i])
+                    labels.append("SU8 %(v3)s NS %(v4)d D %(v5)d"%{"v3":SU8, "v4":ns_vals[i], "v5":d_vals[i]})
+
+            waveguide_file = 'W_11_L_4262_Yes_SU8_NS_No_R1.txt'
+            waveguide_data = np.loadtxt(waveguide_file)
+
+            # Normalise the data
+            max = math.fabs(np.max(waveguide_data[1]))
+
+            for j in range(0, len(waveguide_data[1]), 1):
+                waveguide_data[1][j] = waveguide_data[1][j] + max
+
+            #hv_list.append(waveguide_data); markers.append(Plotting.labs_dashed[-1]); labels.append('Input')
+
+            if len(hv_list) > 0:
+                args = Plotting.plot_arg_multiple()
+
+                args.loud = True
+                args.crv_lab_list = labels
+                args.mrk_list = markers
+                
+                #args.plt_title = 'SOA Comparison at 80 mA'
+                #args.fig_name = 'SOA_Comparison'
+                
+                args.x_label = 'Wavelength (nm)'
+                args.y_label = 'Power (dB / 0.05 nm)'
+                
+                #args.plt_range = [1525, 1545, -60, -40]
+
+                Plotting.plot_multiple_curves(hv_list, args)
+
+            del hv_list; del labels; del markers;             
         else:
             raise EnvironmentError
     except EnvironmentError:
