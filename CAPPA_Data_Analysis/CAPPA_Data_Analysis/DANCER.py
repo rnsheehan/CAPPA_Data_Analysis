@@ -200,6 +200,10 @@ def plot_PhC_response(scale_horz = False):
                     resp_05.append( Common.convert_dB( response , ref_level_05 ) )
 
 
+                Common.write_data('fr_data.txt',fr_data)
+                Common.write_data('resp_03_data.txt',resp_03)
+                Common.write_data('resp_05_data.txt',resp_05)
+
                 hv_data = []; marks = []; labels = []
 
                 hv_data.append([fr_data, resp_03]); marks.append(Plotting.labs[0]); labels.append('$V_{pp}$ = 0.3 V')

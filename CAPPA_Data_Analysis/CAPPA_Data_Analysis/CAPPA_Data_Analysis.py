@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
     #Redfinch_AWG.Make_AWG_Plots()
 
-    #DANCER.DANCER_Plots()
+    DANCER.DANCER_Plots()
 
     #RSOA_Meas.plot_Vpp_R_Curve()
 
@@ -56,7 +56,7 @@ if __name__ == '__main__':
 
     #TIDA_Data.Filter_Spectrum()
 
-    TIDA_Data.NS_Spectra()
+    #TIDA_Data.NS_Spectra()
 
     #num = 2
 

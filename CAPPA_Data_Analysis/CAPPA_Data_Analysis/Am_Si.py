@@ -37,9 +37,9 @@ def a_Si_plots():
 
             #Laser_Spectra_3()
 
-            Laser_Spectra_Combo()
+            #Laser_Spectra_Combo()
 
-            #Trans_Spectra()
+            Trans_Spectra()
 
             #Mode_Hopping_2()
 
@@ -823,7 +823,7 @@ def Trans_Spectra():
             os.chdir(DATA_HOME) # move to directory containing data
             print(os.getcwd())
 
-            n1 = 4; n2 = 6;
+            n1 = 5; n2 = 6;
 
             file_template = "%(v1)d_set%(v2)dnormalized.dat"
 
@@ -841,7 +841,7 @@ def Trans_Spectra():
                 #args.y_label = 'Transmitted Power (dBm)'
                 #args.plt_range = [1525, 1570, -55, -40]
                 args.y_label = 'Normalised Transmission'
-                args.plt_range = [1525, 1590, 0.4, 1.1]
+                args.plt_range = [1525, 1580, 0.4, 1.2]
                 args.marker = 'r-'
                 Plotting.plot_single_curve(data[0], data[1], args)
 
