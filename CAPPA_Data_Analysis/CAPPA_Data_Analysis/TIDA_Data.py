@@ -536,3 +536,44 @@ def NS_Spectra():
     except Exception as e:
         print(ERR_STATEMENT)
         print(e)
+
+def Quick_Plot():
+
+    FUNC_NAME = ".NS_Spectra()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        DATA_HOME = 'c:/users/robert/Research/CAPPA/Data/TIDA_NS/AR_Coated_NS/'
+
+        if os.path.isdir(DATA_HOME):
+            
+            os.chdir(DATA_HOME)
+
+            print(os.getcwd())
+
+            num = 39
+
+            filename = 'WG%(v1)d.txt'%{"v1":num}
+
+            if glob.glob(filename):
+                data = np.loadtxt(filename)
+
+                args = Plotting.plot_arg_single()
+
+                args.loud = True
+                args.marker = 'r-'
+                args.x_label = 'Wavelength (nm)'
+                args.y_label = 'Power (dBm / 0.05 nm)'
+                args.plt_range = [1520, 1570, -65, -35]
+                args.plt_title = filename.replace('.txt','')
+                args.fig_name = filename.replace('.txt','')
+
+                Plotting.plot_single_curve(data[0], data[1], args)
+            else:
+                raise Exception
+    except EnvironmentError:
+        print(ERR_STATEMENT);
+        print('Cannot find',DATA_HOME)
+    except Exception as e:
+        print(ERR_STATEMENT)
+        print(e)

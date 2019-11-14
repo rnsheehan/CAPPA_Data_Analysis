@@ -483,3 +483,28 @@ def freq_response_fit(hor_data, vert_data):
         return popt
     except Exception:
         print("An error occurred")
+
+def WL_Repeatibility():
+
+    FUNC_NAME = ".WL_Repeatibility()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        mode_num = np.arange(1,5,1)
+        mode_wl = [1540.24, 1546.67, 1552.63, 1557.82]
+        mode_dwl = [2.49, 2.53, 2.49, 1.51]
+        mode_stdev = [1.46, 1.50, 1.43, 1.18]
+
+        args = Plotting.plot_arg_single()
+
+        args.loud = True
+        args.marker = Plotting.labs_pts[1]
+        args.x_label = "Mode Number"
+        args.y_label = "PhC Resonance Wavelength (nm)"
+        args.fig_name = 'WL_Repeatibility'
+
+        Plotting.plot_single_curve_with_errors(mode_num, mode_wl, mode_stdev, args)
+        
+    except Exception as e:
+        print(ERR_STATEMENT)
+        print(e)
