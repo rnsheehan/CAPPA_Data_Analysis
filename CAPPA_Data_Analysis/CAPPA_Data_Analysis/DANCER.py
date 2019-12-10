@@ -499,12 +499,53 @@ def WL_Repeatibility():
 
         args.loud = True
         args.marker = Plotting.labs_pts[1]
+        args.plt_range = [0.5,3.5, 1534, 1558]
         args.x_label = "Mode Number"
         args.y_label = "PhC Resonance Wavelength (nm)"
         args.fig_name = 'WL_Repeatibility'
 
-        Plotting.plot_single_curve_with_errors(mode_num, mode_wl, mode_stdev, args)
+        Plotting.plot_single_curve_with_errors(mode_num, mode_wl, mode_dwl, args)
         
+    except Exception as e:
+        print(ERR_STATEMENT)
+        print(e)
+
+def PhC_Transmission():
+
+    FUNC_NAME = ".PhC_Transmission()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        DATA_HOME = "C:/Users/Robert/Research/Publications/PhC_Laser_cavity_Length/"
+
+        if os.path.isdir(DATA_HOME):
+            os.chdir(DATA_HOME)
+
+            print(os.getcwd())
+
+            filename = 'Normalised_data_Device_4_T.dat'
+
+            if glob.glob(filename):
+                data = np.loadtxt(filename, unpack = True)
+
+                Tmax = np.max(data[1])
+
+                data[1] = data[1] / Tmax
+
+                args = Plotting.plot_arg_single()
+
+                args.loud = True
+                args.marker = Plotting.labs_lins[0]
+                args.plt_range = [1535, 1555, 0, 1]
+                args.x_label = "wavelength (nm)"
+                args.y_label = "PhC Transmission (a. u. )"
+                args.fig_name = 'PhC_transmission'
+
+                Plotting.plot_single_curve(data[0], data[1], args)
+            else:
+                raise Exception
+        else:
+            raise Exception        
     except Exception as e:
         print(ERR_STATEMENT)
         print(e)

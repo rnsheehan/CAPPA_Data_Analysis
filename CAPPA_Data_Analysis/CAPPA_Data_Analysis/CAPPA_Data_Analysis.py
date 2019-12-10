@@ -111,4 +111,6 @@ if __name__ == '__main__':
 
     #TIDA_Data.Quick_Plot()
 
-    DANCER.WL_Repeatibility()
+    #DANCER.WL_Repeatibility()
+
+    DANCER.PhC_Transmission()
