@@ -23,6 +23,7 @@ import RSOA_Meas
 import TIDA_Data
 import COSMICC_Data
 import Am_Si
+import ESA_Meas
 
 def main():
     pass
@@ -113,4 +114,8 @@ if __name__ == '__main__':
 
     #DANCER.WL_Repeatibility()
 
-    DANCER.PhC_Transmission()
+    #DANCER.PhC_Transmission()
+
+    #ESA_Meas.Optical_Spectra()
+
+    ESA_Meas.Frequency_Analysis()

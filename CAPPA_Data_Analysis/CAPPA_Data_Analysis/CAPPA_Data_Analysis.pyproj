@@ -31,6 +31,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DBR_Analysis.py" />
+    <Compile Include="ESA_Meas.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="FR_Meas_Setup.py">
       <SubType>Code</SubType>
     </Compile>

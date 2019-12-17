@@ -551,7 +551,7 @@ def Quick_Plot():
 
             print(os.getcwd())
 
-            num = 39
+            num = 32
 
             filename = 'WG%(v1)d.txt'%{"v1":num}
 
