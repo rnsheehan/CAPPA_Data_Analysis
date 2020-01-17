@@ -11,8 +11,8 @@ import numpy
 import matplotlib.pyplot as plt
 
 # add path to our file
-sys.path.append('c:/Users/Robert/Programming/Python/Common/')
-sys.path.append('c:/Users/Robert/Programming/Python/Plotting/')
+#sys.path.append('c:/Users/Robert/Programming/Python/Common/')
+#sys.path.append('c:/Users/Robert/Programming/Python/Plotting/')
 
 import Yenista_TLS
 import DBR_Analysis
@@ -116,6 +116,10 @@ if __name__ == '__main__':
 
     #DANCER.PhC_Transmission()
 
+    #DANCER.PhC_Verification_Passive()
+    
+    DANCER.PhC_Verification_Active()
+
     #ESA_Meas.Optical_Spectra()
 
-    ESA_Meas.Frequency_Analysis()
+    #ESA_Meas.Frequency_Analysis()

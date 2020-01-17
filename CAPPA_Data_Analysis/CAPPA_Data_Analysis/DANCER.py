@@ -516,7 +516,7 @@ def PhC_Transmission():
     ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
 
     try:
-        DATA_HOME = "C:/Users/Robert/Research/Publications/PhC_Laser_cavity_Length/"
+        DATA_HOME = "C:/Users/robertsheehan/Research/Publications/PhC_Laser_cavity_Length/"
 
         if os.path.isdir(DATA_HOME):
             os.chdir(DATA_HOME)
@@ -544,6 +544,252 @@ def PhC_Transmission():
                 Plotting.plot_single_curve(data[0], data[1], args)
             else:
                 raise Exception
+        else:
+            raise Exception        
+    except Exception as e:
+        print(ERR_STATEMENT)
+        print(e)
+
+def PhC_Verification_Passive():
+
+    # Make your own plot of the data that Praveen sent in the Verification Slides
+    # R. Sheehan 17 - 1 - 2020
+
+    FUNC_NAME = ".PhC_Transmission()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+    try:
+        DATA_HOME = "C:/Users/robertsheehan/Research/Publications/PhC_Laser_cavity_Length/Devices_4_8_10_18_24/Passive/"
+
+        if os.path.isdir(DATA_HOME):
+            os.chdir(DATA_HOME)
+
+            print(os.getcwd())
+
+            filename = 'device_*_T.dat'; 
+
+            if glob.glob(filename):             
+                vals = [4, 8, 10, 18, 24]
+                l_vals = [1129, 1606, 1874, 4115, 4627] # corresponding cavity lengths, units of um
+                v_vals = [57, 44, 39, 20, 18] # corresponding LMS, units of GHz
+                template = 'device_%(v1)d_T.dat'
+
+                MAKE_SINGLE_PLOTS = True
+                MAKE_MULTI_PLOT = False
+                
+                # For all your peak search needs visit https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html
+                PEAK_SEARCH = False
+
+                hv_list = []; lab_list = []; mrk_list = [];
+
+                for i in range(0, len(vals), 1): 
+                    the_file = template%{"v1":vals[i]}
+
+                    print(the_file)
+
+                    data = np.loadtxt(the_file,unpack = True)
+
+                    # scale the data so that it lies in domain [0, 1]
+                    data_max = np.amax(data[1])
+
+                    data[1] = data[1]/data_max
+
+                    # search for peaks on a subset of the data
+                    wl1 = 1535; wl2 = 1555; 
+
+                    wl1indx = np.where(data[0] == wl1)[0][0]
+                    wl2indx = np.where(data[0] == wl2)[0][0]
+
+                    if PEAK_SEARCH:
+                        from scipy.signal import find_peaks, peak_prominences, peak_widths
+
+                        # find the peaks in the signal
+                        peaks, heights = find_peaks(data[1][wl1indx:wl2indx])
+                        prominences = peak_prominences(data[1][wl1indx:wl2indx], peaks) # compute peak prominences
+                        widths = peak_widths(data[1][wl1indx:wl2indx], peaks, rel_height=0.1, prominence_data = prominences, wlen = None)[0] # compute peak FWHM
+
+                        #print(heights['peak_heights'][0])
+                        
+                        for j in range(1, len(peaks), 1):
+                            #if data[0][wl1indx:wl2indx][peaks[j]] > wl1 and data[0][wl1indx:wl2indx][peaks[j]] < wl2:
+                            if prominences[0][j] > 1.0e-2 and widths[j] < 50.0:
+                                #print(data[0][peaks[j]],",",data[1][peaks[j]],",",prominences[j],",",widths[j],",",heights['peak_heights'][j])
+                                print(data[0][wl1indx:wl2indx][peaks[j]],",",data[1][wl1indx:wl2indx][peaks[j]],",",widths[j]/100.0)
+
+                    if MAKE_SINGLE_PLOTS:
+                        args = Plotting.plot_arg_single()
+
+                        args.loud = True
+                        args.x_label = 'Wavelength (nm)'
+                        args.y_label = 'Spectral Power (dBm / 50 pm)'
+                        args.marker = Plotting.labs_lins[0]
+                        #args.plt_range = [1520, 1620, -70, -40]
+                        #args.plt_range = [1535, 1555, -70, -40]
+                        #args.fig_name = the_file.replace('.dat','')
+
+                        Plotting.plot_single_curve(data[0][wl1indx:wl2indx], data[1][wl1indx:wl2indx], args)
+
+                    if MAKE_MULTI_PLOT:
+                        hv_list.append(data); 
+                        #lab_list.append('$L_{T}$ = %(v1)d um, $\Delta\nu$ = %(v2)d GHz'%{"v1":l_vals[i], "v2":v_vals[i]})
+                        lab_list.append("$L_{T}$ = %(v1)d um"%{"v1":l_vals[i]})
+                        mrk_list.append(Plotting.labs_lins[i])
+
+                    del data
+
+                if MAKE_MULTI_PLOT:
+                    args = Plotting.plot_arg_multiple()
+
+                    args.loud = True
+                    args.crv_lab_list = lab_list
+                    args.mrk_list = mrk_list
+                    args.x_label = 'Wavelength (nm)'
+                    args.y_label = 'Spectral Power (dBm / 50 pm)'
+                    args.plt_range = [1535, 1555, -65, -45]
+                    args.fig_name = 'Combined_Spectra'
+
+                    Plotting.plot_multiple_curves(hv_list, args)
+
+                    del args; del mrk_list; del lab_list; del hv_list;
+            else:
+                raise Exception
+        else:
+            raise Exception        
+    except Exception as e:
+        print(ERR_STATEMENT)
+        print(e)
+
+def PhC_Verification_Active():
+
+    # Make your own plot of the data that Praveen sent in the Verification Slides
+    # R. Sheehan 17 - 1 - 2020
+
+    FUNC_NAME = ".PhC_Transmission()" # use this in exception handling messages
+    ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
+
+
+    try:
+        DATA_HOME = "C:/Users/robertsheehan/Research/Publications/PhC_Laser_cavity_Length/Devices_4_8_10_18_24/Active/"
+
+        if os.path.isdir(DATA_HOME):
+            os.chdir(DATA_HOME)
+
+            home = os.getcwd()
+
+            print(home)
+
+            vals = [4, 8, 10, 18, 24]
+            l_vals = [1129, 1606, 1874, 4115, 4627] # corresponding cavity lengths, units of um
+            v_vals = [57, 44, 39, 20, 18] # corresponding LMS, units of GHz
+            directory = 'device_%(v1)d/'
+
+            MULTI_SPCT_PLOT = False
+
+            PEAK_ANALYSIS = False
+
+            LOCAL_PEAK_PLOT = False
+
+            if PEAK_ANALYSIS:
+                peak_pow_list = []; peak_wl_list = []; peak_lab_list = []; peak_mrk_list = []; 
+
+            for k in range(0, len(vals), 1):
+                os.chdir(directory%{"v1":vals[k]})
+
+                current = np.loadtxt('20C_current.dat')
+                wavel = np.loadtxt('20C_wave.dat')
+                spctrm = np.loadtxt('20C_OSA.dat',unpack = True)
+            
+                #print("len(current) =",len(current))
+                #print("len(wavel) =",len(wavel))
+                #print("len(spctrm) =",len(spctrm))
+                #print("len(spctrm[j]) =",len(spctrm[10]))
+
+                if PEAK_ANALYSIS:
+                    # Make a plot of the peak lasing wavelength as a function of RSOA Current
+                    # Compare this data for each of the lasers
+
+                    # local arrays to hold data
+                    wl_vals = []; pow_vals = []; 
+                    for j in range(0, len(current), 1):
+                        pow_vals.append(np.max(spctrm[j])) # find max power
+                        wl_vals.append(wavel[np.argmax(spctrm[j])]); # find wl at which max wl occurs
+                        
+                    peak_pow_list.append([current, pow_vals]); 
+                    peak_wl_list.append([current, wl_vals]); 
+                    peak_lab_list.append("$L_{T}$ = %(v1)d um"%{"v1":l_vals[k]})
+                    peak_mrk_list.append(Plotting.labs_pts[k])
+
+                    if LOCAL_PEAK_PLOT:
+                        args = Plotting.plot_arg_single()
+
+                        args.loud = False
+                        args.x_label = 'Current (mA)'
+                        args.y_label = 'Spectral Power (dBm / 50 pm)'
+                        args.y_label_2 = 'Peak Wavelength (nm)'
+                        args.fig_name = 'Peak_Pow_WL_L_%(v1)d'%{"v1":l_vals[k]}
+
+                        Plotting.plot_two_axis(current, pow_vals, wl_vals, args)
+
+                        args.loud = True
+                        args.x_label = 'Current (mA)'
+                        args.y_label = 'Peak Wavelength (nm)'
+                        args.marker = 'b^'
+                        args.plt_range = [20, 100, 1538, 1550]
+                        args.fig_name = 'Peak_WL_L_%(v1)d'%{"v1":l_vals[k]}
+
+                        Plotting.plot_single_curve(current, wl_vals, args)
+
+                    del wl_vals; del pow_vals; 
+
+                if MULTI_SPCT_PLOT:
+                    # Make a multi-spectrum plot for the data in the directory
+                    hv_list = []; lab_list = []; mrk_list = []; 
+
+                    count = 0
+                    for i in range(25, len(current), 25):
+                        hv_list.append([wavel, spctrm[i]]); 
+                        lab_list.append("$I_{RSOA}$ = %(v1)d mA"%{"v1":current[i]}); 
+                        mrk_list.append(Plotting.labs_lins[count])
+                        count = count + 1 
+
+                    args = Plotting.plot_arg_multiple()
+
+                    args.loud = True
+                    args.plt_range = [wavel[0], wavel[-1], -70, 0.0]
+                    args.x_label = 'Wavelength (nm)'
+                    args.y_label = 'Spectral Power (dBm / 50 pm)'
+                    args.mrk_list = mrk_list
+                    args.crv_lab_list = lab_list
+                    args.fig_name = 'Laser_Spectra_L_%(v1)d'%{"v1":l_vals[k]}
+
+                    Plotting.plot_multiple_curves(hv_list, args)
+
+                os.chdir(home)        
+
+            if PEAK_ANALYSIS:
+                # Make a plot of the combined peak wl and peak pow variations with current
+
+                args = Plotting.plot_arg_multiple()
+
+                args.loud = True
+                args.mrk_list = peak_mrk_list
+                args.crv_lab_list = peak_lab_list
+
+                args.x_label = 'Current (mA)'
+                args.y_label = 'Peak Power (dBm / 50 pm)'
+                args.plt_range = [20, 100, -30, 0]
+                args.fig_name = 'Peak_Power_Current'
+
+                Plotting.plot_multiple_curves(peak_pow_list, args)
+
+                args.x_label = 'Current (mA)'
+                args.y_label = 'Peak Wavelength (nm)'
+                args.plt_range = [20, 100, 1538, 1550]
+                args.fig_name = 'Peak_Wavelength_Current'
+
+                Plotting.plot_multiple_curves(peak_wl_list, args)
+                
+                del peak_pow_list; del peak_wl_list; del args; 
         else:
             raise Exception        
     except Exception as e:
