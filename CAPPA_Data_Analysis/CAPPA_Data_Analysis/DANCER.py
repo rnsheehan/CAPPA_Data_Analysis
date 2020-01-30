@@ -572,7 +572,7 @@ def PhC_Verification_Passive():
                 vals = [4, 8, 10, 18, 24]
                 l_vals = [1129, 1606, 1874, 4115, 4627] # corresponding cavity lengths, units of um
                 v_vals = [57, 44, 39, 20, 18] # corresponding LMS, units of GHz
-                template = 'device_%(v1)d_T.dat'
+                template = 'device_%(v1)d_T.dat'                
 
                 MAKE_SINGLE_PLOTS = True
                 MAKE_MULTI_PLOT = False
@@ -589,11 +589,6 @@ def PhC_Verification_Passive():
 
                     data = np.loadtxt(the_file,unpack = True)
 
-                    # scale the data so that it lies in domain [0, 1]
-                    data_max = np.amax(data[1])
-
-                    data[1] = data[1]/data_max
-
                     # search for peaks on a subset of the data
                     wl1 = 1535; wl2 = 1555; 
 
@@ -602,6 +597,11 @@ def PhC_Verification_Passive():
 
                     if PEAK_SEARCH:
                         from scipy.signal import find_peaks, peak_prominences, peak_widths
+
+                        # scale the data so that it lies in domain [0, 1]
+                        data_max = np.amax(data[1])
+
+                        data[1] = data[1]/data_max
 
                         # find the peaks in the signal
                         peaks, heights = find_peaks(data[1][wl1indx:wl2indx])
@@ -624,8 +624,8 @@ def PhC_Verification_Passive():
                         args.y_label = 'Spectral Power (dBm / 50 pm)'
                         args.marker = Plotting.labs_lins[0]
                         #args.plt_range = [1520, 1620, -70, -40]
-                        #args.plt_range = [1535, 1555, -70, -40]
-                        #args.fig_name = the_file.replace('.dat','')
+                        args.plt_range = [1535, 1555, -65, -45]
+                        args.fig_name = the_file.replace('.dat','_zoom')
 
                         Plotting.plot_single_curve(data[0][wl1indx:wl2indx], data[1][wl1indx:wl2indx], args)
 
@@ -689,6 +689,8 @@ def PhC_Verification_Active():
 
             LOCAL_PEAK_PLOT = False
 
+            SMSR_PLOTS = True
+
             if PEAK_ANALYSIS:
                 peak_pow_list = []; peak_wl_list = []; peak_lab_list = []; peak_mrk_list = []; 
 
@@ -739,7 +741,7 @@ def PhC_Verification_Active():
 
                         Plotting.plot_single_curve(current, wl_vals, args)
 
-                    del wl_vals; del pow_vals; 
+                    del wl_vals; del pow_vals
 
                 if MULTI_SPCT_PLOT:
                     # Make a multi-spectrum plot for the data in the directory
@@ -763,6 +765,23 @@ def PhC_Verification_Active():
                     args.fig_name = 'Laser_Spectra_L_%(v1)d'%{"v1":l_vals[k]}
 
                     Plotting.plot_multiple_curves(hv_list, args)
+
+                if SMSR_PLOTS:
+                    # plot the laser spectra at single current values and measures the SMSR from the plot
+                    curr_indx = 25
+
+                    args = Plotting.plot_arg_single()
+
+                    args.loud = True
+
+                    args.x_label = 'Wavelength / nm'
+                    args.y_label = 'Spectral Power (dBm / 50 pm)'
+                    args.curve_label = "$I_{RSOA}$ = %(v1)d mA"%{"v1":current[curr_indx]}
+                    args.marker = Plotting.labs_lins[0]
+                    args.plt_range = [wavel[0], wavel[-1], -70, 0.0]
+                    args.fig_name = 'Las_Spct_I_RSOA_%(v1)d'%{"v1":current[curr_indx]}
+
+                    Plotting.plot_single_curve(wavel, spctrm[curr_indx], args)
 
                 os.chdir(home)        
 
@@ -789,7 +808,7 @@ def PhC_Verification_Active():
 
                 Plotting.plot_multiple_curves(peak_wl_list, args)
                 
-                del peak_pow_list; del peak_wl_list; del args; 
+                del peak_pow_list; del peak_wl_list; del args
         else:
             raise Exception        
     except Exception as e:
