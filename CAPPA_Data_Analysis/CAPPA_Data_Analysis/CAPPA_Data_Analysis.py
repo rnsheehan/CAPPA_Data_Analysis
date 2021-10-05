@@ -108,7 +108,7 @@ if __name__ == '__main__':
     #    print("Relative Error:", 100*(y_pred[i] - y_test[i])/y_pred[i])
     #    print("")
 
-    #Am_Si.a_Si_plots()
+    Am_Si.a_Si_plots()
 
     #TIDA_Data.Quick_Plot()
 
@@ -118,7 +118,7 @@ if __name__ == '__main__':
 
     #DANCER.PhC_Verification_Passive()
     
-    DANCER.PhC_Verification_Active()
+    #DANCER.PhC_Verification_Active()
 
     #ESA_Meas.Optical_Spectra()
 
